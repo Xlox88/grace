@@ -1,0 +1,1621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0b0712">
+<title>The Haunting of Grace House</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Creepster&family=Pixelify+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--void:#0b0712;--panel:#191122;--edge:#3a2740;--ink:#ece0cf;--dim:#a992a0;--amber:#f3a847;--amber2:#c8842f;--crt:#5dff8a;box-sizing:border-box;}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;margin:0;}
+body{background:radial-gradient(120% 80% at 50% 0%,#1a1026 0%,var(--void) 70%);color:var(--ink);font-family:"Pixelify Sans",system-ui,sans-serif;display:flex;justify-content:center;overflow:hidden;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);user-select:none;-webkit-user-select:none;touch-action:none;}
+input,textarea{user-select:text;-webkit-user-select:text;touch-action:auto;font-family:inherit;}
+#wrap{width:100%;max-width:480px;height:100%;display:flex;flex-direction:column;}
+#hud{display:flex;justify-content:space-between;align-items:center;padding:10px 14px 6px;font-size:17px;}
+#roomName{color:var(--dim);font-size:15px;}
+#falafel{color:var(--amber);} #falafel b{color:var(--ink);font-weight:600;}
+#stage{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:4px 8px;}
+canvas#game{image-rendering:pixelated;image-rendering:crisp-edges;max-width:100%;max-height:100%;border:2px solid var(--edge);border-radius:6px;background:#07040c;box-shadow:0 10px 30px rgba(0,0,0,.6);transition:filter .8s;}
+#controls{display:flex;justify-content:space-between;align-items:flex-end;padding:8px 20px 18px;gap:12px;}
+.dpad{display:grid;grid-template-columns:repeat(3,48px);grid-template-rows:repeat(3,48px);gap:4px;}
+.btn{background:var(--panel);border:2px solid var(--edge);color:var(--ink);border-radius:10px;font-family:inherit;font-size:22px;line-height:1;display:flex;align-items:center;justify-content:center;touch-action:none;transition:transform .05s,background .1s;}
+.btn:active,.btn.pressed{background:#2a1d38;transform:scale(.94);}
+#up{grid-column:2;grid-row:1;}#left{grid-column:1;grid-row:2;}#right{grid-column:3;grid-row:2;}#down{grid-column:2;grid-row:3;}
+#act{width:74px;height:74px;border-radius:50%;font-family:"Creepster",cursive;font-size:26px;color:var(--amber);align-self:center;}
+.overlay{position:absolute;inset:0;z-index:10;display:none;flex-direction:column;align-items:center;justify-content:center;padding:18px;text-align:center;}
+.overlay.show{display:flex;}
+#title{background:radial-gradient(130% 90% at 50% 30%,#1c1130 0%,#07040c 75%);z-index:30;}
+#title h1{font-family:"Creepster",cursive;font-weight:400;font-size:clamp(42px,13vw,74px);line-height:.95;margin:0;text-shadow:0 0 18px rgba(243,168,71,.35),2px 3px 0 #000;}
+#title .sub{color:var(--amber2);font-size:16px;margin:14px 0 2px;letter-spacing:1px;}
+#title .enter{margin-top:38px;color:var(--dim);font-size:15px;animation:pulse 1.8s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
+#dialogue{justify-content:flex-end;padding:0;z-index:20;}
+.dbox{width:100%;background:var(--panel);border-top:2px solid var(--edge);padding:16px 20px 20px;text-align:left;box-shadow:0 -10px 30px rgba(0,0,0,.5);}
+.dbox .who{color:var(--amber);font-size:14px;margin-bottom:6px;min-height:1em;}
+.dbox .who.think{color:#9fb4d8;}
+.dbox .txt{font-size:19px;line-height:1.4;min-height:3.4em;}
+.dbox .txt.think{font-style:italic;color:#d6dcef;}
+.dbox .hint{color:var(--dim);font-size:13px;text-align:right;margin-top:6px;}
+.choices{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;}
+.choices button,.pbtn{flex:1;min-width:110px;background:#231634;border:2px solid var(--edge);color:var(--ink);font-family:inherit;font-size:17px;padding:12px;border-radius:10px;}
+.choices button:active,.pbtn:active{background:#2f2046;}
+#panel{background:rgba(7,4,12,.88);z-index:15;}
+.pbox{width:100%;max-width:400px;background:var(--panel);border:2px solid var(--edge);border-radius:12px;padding:18px;transition:filter .9s;}
+.pbox h2{font-family:"Creepster",cursive;font-weight:400;font-size:28px;margin:0 0 8px;}
+.pbox p{color:var(--dim);font-size:15px;line-height:1.4;margin:6px 0;}
+.prow{display:flex;gap:10px;margin-top:12px;}
+.crt{background:#071a0d;border:3px solid #3b3a33;border-radius:10px;padding:16px;color:var(--crt);font-family:"Courier New",monospace;text-align:left;box-shadow:inset 0 0 30px rgba(93,255,138,.15);min-height:170px;}
+.crt .l{margin:5px 0;font-size:15px;}
+.crt .big{font-size:20px;letter-spacing:1px;}
+.crt input{width:100%;background:#031007;border:1px solid #1f6b35;color:var(--crt);font-family:"Courier New",monospace;font-size:18px;padding:8px;margin-top:8px;border-radius:4px;outline:none;}
+textarea.poem{width:100%;height:150px;background:#f4ecd8;color:#2a2018;border:none;border-radius:6px;padding:12px;font-size:20px;line-height:1.3;resize:none;outline:none;font-family:"Caveat","Pixelify Sans",cursive;}
+.bar{position:relative;height:26px;background:#231634;border:2px solid var(--edge);border-radius:8px;margin:16px 0 6px;overflow:hidden;}
+.bar .zone{position:absolute;top:0;bottom:0;left:41%;width:18%;background:rgba(127,184,106,.55);}
+.bar .mark{position:absolute;top:0;bottom:0;width:6px;left:0;background:var(--amber);border-radius:2px;}
+.eyecv{background:#fbf8f0;border-radius:8px;width:170px;height:170px;margin:6px auto;display:block;}
+.arrows{display:grid;grid-template-columns:repeat(3,58px);grid-template-rows:repeat(2,46px);gap:6px;justify-content:center;margin-top:8px;}
+.arrows .pbtn{min-width:0;padding:6px;font-size:20px;}
+#fade{display:flex;background:#000;opacity:0;pointer-events:none;z-index:25;transition:opacity .28s;}
+#fade.on{opacity:1;}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="hud"><span id="roomName">Grace House</span><span id="falafel">&#129478; <b id="falafelCount">0</b></span></div>
+  <div id="stage">
+    <canvas id="game" width="320" height="288"></canvas>
+    <div id="title" class="overlay show">
+      <h1>The Haunting<br>of Grace House</h1>
+      <div class="sub" id="titleSub">Season 1</div>
+      <div class="enter">tap to enter</div>
+    </div>
+    <div id="panel" class="overlay"><div class="pbox" id="pbox"></div></div>
+    <div id="dialogue" class="overlay">
+      <div class="dbox">
+        <div class="who" id="dWho"></div>
+        <div class="txt" id="dTxt"></div>
+        <div class="choices" id="dChoices" style="display:none"></div>
+        <div class="hint" id="dHint">tap to continue</div>
+      </div>
+    </div>
+    <div id="fade" class="overlay"></div>
+  </div>
+  <div id="controls">
+    <div class="dpad">
+      <button class="btn" id="up">&#9650;</button>
+      <button class="btn" id="left">&#9664;</button>
+      <button class="btn" id="right">&#9654;</button>
+      <button class="btn" id="down">&#9660;</button>
+    </div>
+    <button class="btn" id="act">A</button>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* =============================================================
+   THE HAUNTING OF GRACE HOUSE . SEASON 1
+   Things you may want to edit live in CFG.
+   URL switches:  ?reset      wipe progress
+                  ?step=1..8  jump to a story point (testing)
+                  ?dev        P approves / O rejects a pending poem (keyboard)
+                  ?nolog      no network calls (testing)
+   ============================================================= */
+const CFG = {
+  NTFY: "https://ntfy.sh",
+  LOG_TOPIC: "gh-log-q8v3n1x7k2m9p4t6",    // subscribe to this one in the ntfy app
+  CTRL_TOPIC: "gh-ctrl-z5r2w8c1j6h3f9b4",  // the game reads your approvals from here
+  STATE_URL: "state.json",                 // optional fallback file in the repo: {"approvePoem": true}
+  PASSWORD: "rainyday",
+  COORDS: "43.432879, -80.298812"
+};
+const $ = function(id){ return document.getElementById(id); };
+const QS = location.search || "";
+const DEV = /[?&]dev\b/.test(QS), NOLOG = /[?&]nolog\b/.test(QS);
+const SAVE_KEY = "gracehouse.s1.v1";
+
+// ---------- save ----------
+if (/[?&]reset\b/.test(QS)) { try { localStorage.removeItem(SAVE_KEY); } catch (e) {} }
+let S = null;
+try { S = JSON.parse(localStorage.getItem(SAVE_KEY)); } catch (e) { S = null; }
+if (!S || !S.f) S = { f:{}, falafel:0, poem:null, scene:"hall" };
+const STEP_FLAGS = [
+  [],
+  ["intro","spooky"],                                   // 1 ready to go outside
+  ["outside","nose","boysMet","gun","toldOff"],          // 2 Miguel crying, clinic open
+  ["clinicSeen","clinicNote","noseFixed","compThought"], // 3 classroom open
+  ["classSeen","pcHint","pcThought"],                   // 4 saw the locked computer
+  ["grayNoticed","arturTalk"],                          // 5 Artur said Miguel likes poems
+  ["password"],                                         // 6 has the password
+  ["pcIn","blind"],                                     // 7 going blind
+  ["glasses"]                                           // 8 glasses on, nap ready
+];
+(function(){
+  const m = QS.match(/[?&]step=(\d)/); if(!m) return;
+  const n = +m[1]; if(n < 1 || n >= STEP_FLAGS.length) return;
+  S = { f:{}, falafel:0, poem:null, scene: n >= 8 ? "clinic" : "hall" };
+  for(let i = 1; i <= n; i++) STEP_FLAGS[i].forEach(function(k){ S.f[k] = 1; });
+  if(n >= 6) S.poem = { id:"dev", t:0, text:"(dev step)", status:"approved", given:true };
+})();
+const F = S.f;
+function save(){ try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) {} }
+save();
+
+// ---------- logging + approvals (ntfy) ----------
+function ntfyPost(url, body){
+  if(NOLOG) return;
+  try { fetch(url, { method:"POST", body:body }).catch(function(){}); } catch (e) {}
+}
+function logEvent(type, detail){
+  const msg = detail ? type + ": " + detail : type;
+  console.log("[LOG]", msg);
+  ntfyPost(CFG.NTFY + "/" + CFG.LOG_TOPIC + "?title=" + encodeURIComponent("Grace House") + "&tags=ghost", msg);
+}
+function logPoem(p){
+  console.log("[LOG] poem " + p.id + ": " + p.text);
+  const ctrl = CFG.NTFY + "/" + CFG.CTRL_TOPIC;
+  ntfyPost(CFG.NTFY, JSON.stringify({
+    topic: CFG.LOG_TOPIC, title: "Grace wrote Miguel a poem", message: p.text, priority: 4, tags: ["scroll"],
+    actions: [
+      { action:"http", label:"Approve", url:ctrl, method:"POST", body:"approve " + p.id, clear:true },
+      { action:"http", label:"Reject",  url:ctrl, method:"POST", body:"reject " + p.id,  clear:true }
+    ]
+  }));
+}
+let polling = false;
+function pollCtrl(){
+  if(polling || NOLOG) return;
+  polling = true;
+  const a = fetch(CFG.NTFY + "/" + CFG.CTRL_TOPIC + "/json?poll=1&since=all")
+    .then(function(r){ return r.text(); })
+    .then(function(t){ String(t).split("\n").forEach(function(line){
+      if(!line.trim()) return;
+      let m; try { m = JSON.parse(line); } catch (e) { return; }
+      if(m && m.event === "message") applyCtrl(String(m.message || ""), m.time || 0);
+    }); }).catch(function(){});
+  const b = fetch(CFG.STATE_URL + "?t=" + Date.now(), { cache:"no-store" })
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(s){ if(s && s.approvePoem) applyCtrl("approve *", 1e12); }).catch(function(){});
+  Promise.all([a, b]).then(function(){ polling = false; }, function(){ polling = false; });
+}
+function applyCtrl(msg, time){
+  const m = String(msg).trim().match(/^(approve|reject)\s+(\S+)/i); if(!m) return;
+  const p = S.poem; if(!p || p.status !== "pending") return;
+  if(m[2] === "*"){ if((time || 0) < (p.t || 0)) return; }
+  else if(m[2] !== p.id) return;
+  p.status = /^approve$/i.test(m[1]) ? "approved" : "rejected";
+  save(); logEvent("poem_" + p.status, "Miguel's reaction is unlocked");
+}
+setInterval(function(){ if(S.poem && S.poem.status === "pending") pollCtrl(); }, 20000);
+
+// ---------- tiny sound effects ----------
+let AC = null;
+function sfx(kind){
+  try {
+    if(!AC){ const C = window.AudioContext || window.webkitAudioContext; if(!C) return; AC = new C(); }
+    if(AC.state === "suspended") AC.resume();
+    const P = { blip:[660,880,0.06,"square",0.05], bonk:[200,55,0.28,"triangle",0.4], crack:[900,120,0.12,"sawtooth",0.25],
+                chime:[660,1320,0.45,"sine",0.18], click:[1200,900,0.04,"square",0.04], sob:[320,200,0.35,"sine",0.12] }[kind];
+    if(!P) return;
+    const o = AC.createOscillator(), g = AC.createGain(), t = AC.currentTime;
+    o.type = P[3]; o.frequency.setValueAtTime(P[0], t); o.frequency.exponentialRampToValueAtTime(P[1], t + P[2]);
+    g.gain.setValueAtTime(P[4], t); g.gain.exponentialRampToValueAtTime(0.0001, t + P[2]);
+    o.connect(g); g.connect(AC.destination); o.start(t); o.stop(t + P[2] + 0.02);
+  } catch (e) {}
+}
+
+// ---------- canvas + helpers ----------
+const cv = $("game"), ctx = cv.getContext("2d");
+ctx.imageSmoothingEnabled = false;
+const TILE = 16, W = cv.width, H = cv.height;
+function mk(w, h){ const c = document.createElement("canvas"); c.width = w; c.height = h; const g = c.getContext("2d"); g.imageSmoothingEnabled = false; return { c:c, g:g }; }
+function rng(seed){ let s = seed >>> 0; return function(){ s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
+function clamp(v, a, b){ return v < a ? a : (v > b ? b : v); }
+function lerp(a, b, t){ return a + (b - a) * t; }
+function pline(g, x0, y0, x1, y1){
+  x0 = Math.round(x0); y0 = Math.round(y0); x1 = Math.round(x1); y1 = Math.round(y1);
+  const dx = Math.abs(x1 - x0), dy = -Math.abs(y1 - y0), sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1;
+  let err = dx + dy;
+  for(;;){ g.fillRect(x0, y0, 1, 1); if(x0 === x1 && y0 === y1) break; const e2 = 2 * err; if(e2 >= dy){ err += dy; x0 += sx; } if(e2 <= dx){ err += dx; y0 += sy; } }
+}
+function pdisc(g, cx, cy, r){ for(let y = -r; y <= r; y++) for(let x = -r; x <= r; x++) if(x*x + y*y <= r*r + r*0.5) g.fillRect(cx + x, cy + y, 1, 1); }
+function pcircle(g, cx, cy, r){
+  let x = r, y = 0, e = 1 - r;
+  while(x >= y){
+    [[x,y],[y,x],[-y,x],[-x,y],[-x,-y],[-y,-x],[y,-x],[x,-y]].forEach(function(p){ g.fillRect(cx + p[0], cy + p[1], 1, 1); });
+    y++; if(e < 0) e += 2*y + 1; else { x--; e += 2*(y - x) + 1; }
+  }
+}
+function rectLine(g, x, y, w, h){ g.fillRect(x, y, w, 1); g.fillRect(x, y + h - 1, w, 1); g.fillRect(x, y, 1, h); g.fillRect(x + w - 1, y, 1, h); }
+
+// ---------- game state ----------
+const G = { mode:"title", t:0, shake:0, cut:null, mini:null, scene:null, sceneId:"hall",
+            walk:0, looks:0, fieldTime:0, nicTalks:0, ball:{ x:0, y:0, z:0, vis:false }, blurOn:null };
+const player = { x:160, y:184, dir:"up", moving:false, frame:0, anim:0 };
+const trail = [];
+const cats = [
+  { name:"Nellie", kind:"nellie", x:0, y:0, lag:10, pet:0 },
+  { name:"Albert", kind:"albert", x:0, y:0, lag:20, pet:0 }
+];
+const cam = { x:0, y:0 };
+
+// ---------- input ----------
+const input = { up:0, down:0, left:0, right:0 };
+function dirPress(k){ if(G.mode === "mini" && G.mini && G.mini.onDir) G.mini.onDir(k); }
+function bindDir(id){
+  const el = $(id);
+  const on = function(e){ e.preventDefault(); if(!input[id]) dirPress(id); input[id] = 1; el.classList.add("pressed"); };
+  const off = function(e){ e.preventDefault(); input[id] = 0; el.classList.remove("pressed"); };
+  el.addEventListener("touchstart", on, { passive:false });
+  el.addEventListener("touchend", off, { passive:false });
+  el.addEventListener("touchcancel", off, { passive:false });
+  el.addEventListener("mousedown", on); el.addEventListener("mouseup", off); el.addEventListener("mouseleave", off);
+}
+["up","down","left","right"].forEach(bindDir);
+$("act").addEventListener("click", function(e){ e.preventDefault(); onAction(); });
+const KEYS = { ArrowUp:"up", ArrowDown:"down", ArrowLeft:"left", ArrowRight:"right" };
+document.addEventListener("keydown", function(e){
+  const tag = (e.target && e.target.tagName) || "";
+  if(tag === "INPUT" || tag === "TEXTAREA") return;
+  const k = KEYS[e.key];
+  if(k){ e.preventDefault(); if(!input[k]) dirPress(k); input[k] = 1; const el = $(k); if(el) el.classList.add("pressed"); return; }
+  if(e.key === " " || e.key === "Enter"){
+    e.preventDefault(); const a = $("act"); a.classList.add("pressed"); setTimeout(function(){ a.classList.remove("pressed"); }, 120); onAction(); return;
+  }
+  if(G.mode === "dialogue" && dlg && dlg.shown && /^[1-4]$/.test(e.key)){ const ch = dlg.choices[+e.key - 1]; if(ch) pickChoice(ch); return; }
+  if(DEV && (e.key === "p" || e.key === "o") && S.poem && S.poem.status === "pending"){
+    applyCtrl((e.key === "p" ? "approve " : "reject ") + S.poem.id, 1e12);
+  }
+});
+document.addEventListener("keyup", function(e){ const k = KEYS[e.key]; if(k){ input[k] = 0; const el = $(k); if(el) el.classList.remove("pressed"); } });
+
+// ---------- dialogue ----------
+let dlg = null, typeTimer = null, typed = 0;
+const dEl = { wrap:$("dialogue"), who:$("dWho"), txt:$("dTxt"), hint:$("dHint"), choices:$("dChoices") };
+function normLine(l){
+  if(typeof l === "string") return { who:"", text:l, think:false };
+  if(l[0] === "~") return { who:"Grace (thinking)", text:l[1], think:true };
+  return { who:l[0], text:l[1], think:false };
+}
+function say(lines, opts){
+  opts = opts || {};
+  const prev = (G.mode === "dialogue") ? (dlg ? dlg.prev : "play") : G.mode;
+  clearInterval(typeTimer);
+  dlg = { lines:lines.map(normLine), i:0, choices:opts.choices || null, onEnd:opts.onEnd || null, prev:prev, shown:false };
+  G.mode = "dialogue";
+  dEl.wrap.classList.add("show");
+  showLine();
+}
+function showLine(){
+  const L = dlg.lines[dlg.i];
+  dEl.who.textContent = L.who; dEl.who.className = "who" + (L.think ? " think" : "");
+  dEl.txt.className = "txt" + (L.think ? " think" : "");
+  typed = 0; dEl.txt.textContent = ""; dEl.hint.style.visibility = "hidden"; dEl.choices.style.display = "none";
+  clearInterval(typeTimer);
+  typeTimer = setInterval(function(){
+    if(!dlg){ clearInterval(typeTimer); return; }
+    typed++; dEl.txt.textContent = L.text.slice(0, typed);
+    if(typed >= L.text.length){ clearInterval(typeTimer); lineDone(); }
+  }, 16);
+}
+function lineDone(){ if(!dlg) return; if(dlg.i >= dlg.lines.length - 1 && dlg.choices) renderChoices(); else dEl.hint.style.visibility = "visible"; }
+function renderChoices(){
+  dEl.choices.innerHTML = "";
+  dlg.choices.forEach(function(ch){
+    const b = document.createElement("button"); b.textContent = ch.label;
+    b.addEventListener("click", function(e){ e.stopPropagation(); pickChoice(ch); });
+    dEl.choices.appendChild(b);
+  });
+  dEl.choices.style.display = "flex"; dlg.shown = true;
+}
+function pickChoice(ch){ closeDialogue(); if(ch.fn) ch.fn(); }
+function advanceDialogue(){
+  if(!dlg) return;
+  const L = dlg.lines[dlg.i];
+  if(typed < L.text.length){ clearInterval(typeTimer); typed = L.text.length; dEl.txt.textContent = L.text; lineDone(); return; }
+  if(dlg.i < dlg.lines.length - 1){ dlg.i++; showLine(); return; }
+  if(dlg.choices) return;
+  const end = dlg.onEnd; closeDialogue(); if(end) end();
+}
+function closeDialogue(){
+  clearInterval(typeTimer);
+  const prev = dlg ? dlg.prev : "play";
+  dlg = null; dEl.wrap.classList.remove("show");
+  if(G.mode === "dialogue") G.mode = (prev === "dialogue" || prev === "title") ? "play" : prev;
+}
+dEl.wrap.addEventListener("click", advanceDialogue);
+
+// ---------- panels (computer, poem, mini-games) ----------
+const panelEl = $("panel"), pbox = $("pbox");
+function openPanel(html){ pbox.innerHTML = html; pbox.style.filter = ""; panelEl.classList.add("show"); G.mode = "panel"; G.mini = null; }
+function closePanel(){ panelEl.classList.remove("show"); pbox.innerHTML = ""; pbox.style.filter = ""; G.mini = null; if(G.mode === "panel" || G.mode === "mini") G.mode = "play"; }
+function onClick(id, fn){ const el = $(id); if(el && el.addEventListener) el.addEventListener("click", function(e){ e.stopPropagation(); fn(e); }); }
+
+// ---------- cutscenes ----------
+function cutscene(steps){ G.cut = { steps:steps, i:-1, t:0 }; G.mode = "cut"; nextCut(); }
+function nextCut(){
+  const c = G.cut; if(!c) return;
+  c.i++; c.t = 0;
+  if(c.i >= c.steps.length){ G.cut = null; if(G.mode === "cut") G.mode = "play"; return; }
+  const s = c.steps[c.i]; if(s.start) s.start();
+}
+function runCut(dt){
+  const c = G.cut; if(!c){ G.mode = "play"; return; }
+  const s = c.steps[c.i]; c.t += dt;
+  const d = s.d || 0.0001, p = Math.min(1, c.t / d);
+  if(s.upd) s.upd(p);
+  if(c.t >= d) nextCut();
+}
+
+// ================= SPRITES =================
+const PAL = {
+  grace:  { H:"#6a4a2e", h:"#4e3522", F:"#ecd0ad", E:"#4f9b5f", D:"#45704e", W:"#5a8a60", L:"#2d3a5a", S:"#241a2b", G:"#4a3328" },
+  nic:    { H:"#2a1d16", F:"#d9a77c", E:"#2a1d16", D:"#f2c230", W:"#2a4b9b", L:"#d9a77c", S:"#1d1d24" },
+  miguel: { H:"#141018", F:"#c08a5c", E:"#141018", D:"#c0392b", W:"#f1f1f1", L:"#c08a5c", S:"#1d1d24" },
+  artur:  { H:"#c0763a", F:"#f0d2b4", E:"#2a4f7a", D:"#2e6fd1", W:"#f1f1f1", L:"#f0d2b4", S:"#1d1d24" },
+  drnic:  { H:"#2a1d16", B:"#3a2a20", F:"#d9a77c", E:"#2a1d16", D:"#eef0f4", W:"#c9d3df", L:"#3b4a63", S:"#1d1d24" }
+};
+const LEGS_A = ["...LL..LL...","...SS..SS..."], LEGS_B = ["..LL....LL..","..SS....SS.."];
+function mkSet(hd, hu, hs, bf, bs){
+  return { down:[hd.concat(bf, LEGS_A), hd.concat(bf, LEGS_B)],
+           up:[hu.concat(bf, LEGS_A), hu.concat(bf, LEGS_B)],
+           side:[hs.concat(bs, LEGS_A), hs.concat(bs, LEGS_B)] };
+}
+const G_HD = ["....HHHH....","..HHHHHHHH..",".HHHHHHHHHH.",".HHFFFFFFHH.",".HFFFFFFFFH.",".HFEFFFFEFH.",".HFFFFFFFFH.","..FFFFFFFF..","...FFFFFF..."];
+const G_HU = ["....HHHH....","..HHHHHHHH..",".HHHHHHHHHH.",".HHHHHHHHHH.",".HHHHHHHHHH.",".HHHHHHHHHH.",".HHHHHHHHHH.","..HHHHHHHH..","...HHHHHH..."];
+const G_HS = ["...HHHHH....","..HHHHHHH...",".HHHHHHHH...",".HHHFFFFFE..",".HHHFFFFFF..",".HHHFFFFF...","..HHFFFFF...","..HFFFFF....","...FFFF....."];
+const G_BF = [".hDDDDDDDDh.","hDDDWWWWDDDh","hDDDDDDDDDDh"];
+const G_BS = ["h.DDDDDD....","hDDDWWWD....","hDDDDDDD...."];
+const B_HD = ["...HHHHHH...","..HHHHHHHH..",".HHHHHHHHHH.",".HHFFFFFFHH.",".HFFFFFFFFH.",".FFEFFFFEFF.",".FFFFFFFFFF.","..FFFFFFFF..","...FFFFFF..."];
+const B_HU = ["...HHHHHH...","..HHHHHHHH..",".HHHHHHHHHH.",".HHHHHHHHHH.",".HHHHHHHHHH.",".HHHHHHHHHH.",".FHHHHHHHHF.","..FFFFFFFF..","...FFFFFF..."];
+const B_HS = ["...HHHHH....","..HHHHHHH...",".HHHHHHHH...",".HHHFFFFFF..",".HHFFFFFEF..",".HFFFFFFFFF.","..FFFFFFF...","..FFFFFF....","...FFFF....."];
+const B_BF = ["..DDDDDDDD..",".DDDWWWWDDD.",".DDDDDDDDDD."];
+const B_BS = ["..DDDDDD....",".DDDWWWD....",".DDDDDDD...."];
+const D_HD = B_HD.slice(0, 6).concat([".BFFFFFFFFB.","..BBFFFFBB..","...BBBBBB..."]);
+const D_HS = B_HS.slice(0, 6).concat(["..BBFFFFF...","..BBBBBB....","...BBBB....."]);
+const SPR = { grace:mkSet(G_HD, G_HU, G_HS, G_BF, G_BS), boy:mkSet(B_HD, B_HU, B_HS, B_BF, B_BS), dr:mkSet(D_HD, B_HU, D_HS, B_BF, B_BS) };
+
+function drawGrid(grid, pal, x0, y0, flip){
+  for(let r = 0; r < grid.length; r++){
+    const row = grid[r];
+    for(let c = 0; c < row.length; c++){
+      const ch = row[c]; if(ch === ".") continue;
+      const col = pal[ch]; if(!col) continue;
+      ctx.fillStyle = col; ctx.fillRect(x0 + (flip ? row.length - 1 - c : c), y0 + r, 1, 1);
+    }
+  }
+}
+function drawPerson(kind, pal, x, y, dir, frame, bob){
+  const set = SPR[kind]; let grid, flip = false;
+  if(dir === "down") grid = set.down[frame]; else if(dir === "up") grid = set.up[frame]; else { grid = set.side[frame]; flip = (dir === "left"); }
+  const x0 = Math.round(x - 6), y0 = Math.round(y - 14) + (bob || 0);
+  ctx.fillStyle = "rgba(0,0,0,0.3)"; ctx.fillRect(x0 + 2, Math.round(y - 1), 8, 2);
+  drawGrid(grid, pal, x0, y0, flip);
+  return { x0:x0, y0:y0, flip:flip };
+}
+function opx(o, c, r, col){ ctx.fillStyle = col; ctx.fillRect(o.x0 + (o.flip ? 11 - c : c), o.y0 + r, 1, 1); }
+
+function drawGrace(){
+  const o = drawPerson("grace", PAL.grace, player.x, player.y, player.dir, player.moving ? player.frame : 0, (player.moving && player.frame === 1) ? 1 : 0);
+  const d = player.dir, broken = F.nose && !F.noseFixed, band = !!F.noseFixed, gl = PAL.grace.G;
+  if(d === "down"){
+    if(broken){ opx(o,5,6,"#c0444f"); opx(o,6,6,"#c0444f"); opx(o,5,7,"#a33440"); }
+    if(band){ for(let c = 4; c <= 7; c++) opx(o,c,6,"#f1ead9"); opx(o,5,6,"#d8c6a6"); }
+    if(F.glasses){
+      for(let r = 4; r <= 6; r++) [2,3,4,7,8,9].forEach(function(c){ if(r === 5 && (c === 3 || c === 8)) return; opx(o,c,r,gl); });
+      opx(o,5,5,gl); opx(o,6,5,gl);
+    }
+  } else if(d !== "up"){
+    if(broken) opx(o,9,4,"#c0444f");
+    if(band){ opx(o,8,4,"#f1ead9"); opx(o,9,4,"#f1ead9"); }
+    if(F.glasses){ [[5,3],[6,3],[7,3],[8,3],[10,3],[8,4],[9,4],[10,4]].forEach(function(p){ opx(o,p[0],p[1],gl); }); }
+  }
+}
+const HEART = [".X.X.","XXXXX",".XXX.","..X.."];
+function drawHeart(x, y, a){
+  ctx.globalAlpha = Math.max(0, a); ctx.fillStyle = "#ff7aa8";
+  for(let r = 0; r < 4; r++) for(let c = 0; c < 5; c++) if(HEART[r][c] === "X") ctx.fillRect(x + c, y + r, 1, 1);
+  ctx.globalAlpha = 1;
+}
+function drawNPC(n){
+  const frame = n.walk ? (Math.floor(G.t * 6) % 2) : 0;
+  const crying = (n.id === "miguel" && F.toldOff && !F.password);
+  const bob = crying ? (Math.floor(G.t * 4) % 2) : 0;
+  const o = drawPerson(n.kind, n.pal, n.x, n.y, n.dir, frame, bob);
+  if(crying && n.dir !== "up"){
+    const k = Math.floor(G.t * 5) % 3;
+    if(n.dir === "down"){ opx(o,3,6+k,"#8fc1ff"); opx(o,8,6+k,"#8fc1ff"); } else opx(o,9,5+k,"#8fc1ff");
+  }
+  if(n.id === "nic" && F.pcHint){
+    if(n.dir === "down"){ opx(o,2,6,"#e8899a"); opx(o,9,6,"#e8899a"); } else if(n.dir !== "up") opx(o,7,5,"#e8899a");
+    for(let i = 0; i < 2; i++){ const ph = (G.t * 0.7 + i * 0.5) % 1; drawHeart(Math.round(n.x - 2 + Math.sin((G.t + i) * 3) * 2), Math.round(n.y - 20 - ph * 12), 1 - ph); }
+  }
+}
+// cats
+const CATP = {
+  nellie:{ B:"#1c1622", b:"#302a3a", Y:"#e3d24a" },
+  albert:{ B:"#8a6f4e", s:"#5f4a33", w:"#efe8da", N:"#d98a8a", Y:"#c6a24a" }
+};
+const CATG = {
+  nellie:["..b....b..",".BB....BB.",".BBBBBBBB.",".BYBBBBYB.",".BBBBBBBB.",".bBBBBBBb.","..BB..BB.T",".........."],
+  albert:["..s....s..",".Bs....sB.",".BwwwwwwB.",".BwYwwYwB.",".BwwNNwwB.",".BwwwwwwB.",".BsBssBsBB","..w....w.."]
+};
+function drawCat(c){
+  const x0 = Math.round(c.x - 5), y0 = Math.round(c.y - 10);
+  ctx.fillStyle = "rgba(0,0,0,0.3)"; ctx.fillRect(x0 + 2, y0 + 8, 6, 2);
+  drawGrid(CATG[c.kind], CATP[c.kind], x0, y0, false);
+}
+function drawBall(){
+  const b = G.ball; if(!b.vis) return;
+  const sx = Math.round(b.x - 2), sy = Math.round(b.y);
+  ctx.fillStyle = "rgba(0,0,0,0.3)"; ctx.fillRect(sx, sy, 4, 1);
+  const x = sx, y = Math.round(b.y - 4 - b.z);
+  ctx.fillStyle = "#f4f4f4"; ctx.fillRect(x + 1, y, 2, 1); ctx.fillRect(x, y + 1, 4, 2); ctx.fillRect(x + 1, y + 3, 2, 1);
+  ctx.fillStyle = "#222"; ctx.fillRect(x + 1, y + 1, 1, 1); ctx.fillRect(x + 2, y + 2, 1, 1);
+}
+
+// ================= LIGHTING =================
+const DARK = mk(W, H);
+function drawDarkness(alpha, lights){
+  const d = DARK.g;
+  d.globalCompositeOperation = "source-over"; d.clearRect(0, 0, W, H);
+  d.fillStyle = "rgba(7,4,12," + alpha.toFixed(3) + ")"; d.fillRect(0, 0, W, H);
+  d.globalCompositeOperation = "destination-out";
+  lights.forEach(function(L){
+    const x = L.x - cam.x, y = L.y - cam.y;
+    const gr = d.createRadialGradient(x, y, 0, x, y, L.r);
+    gr.addColorStop(0, "rgba(255,255,255," + L.s + ")"); gr.addColorStop(1, "rgba(255,255,255,0)");
+    d.fillStyle = gr; d.beginPath(); d.arc(x, y, L.r, 0, Math.PI * 2); d.fill();
+  });
+  d.globalCompositeOperation = "source-over";
+  ctx.drawImage(DARK.c, 0, 0);
+  ctx.save(); ctx.globalCompositeOperation = "soft-light";
+  lights.forEach(function(L){
+    if(!L.tint) return;
+    const x = L.x - cam.x, y = L.y - cam.y;
+    const gr = ctx.createRadialGradient(x, y, 0, x, y, L.r);
+    gr.addColorStop(0, L.tint + L.ta + ")"); gr.addColorStop(1, L.tint + "0)");
+    ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(x, y, L.r, 0, Math.PI * 2); ctx.fill();
+  });
+  ctx.restore();
+}
+function roomLight(){
+  const g = ctx.createRadialGradient(W/2, H/2, H * 0.35, W/2, H/2, H * 0.85);
+  g.addColorStop(0, "rgba(0,0,0,0)"); g.addColorStop(1, "rgba(0,0,0,0.35)");
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+}
+const wisps = [];
+for(let i = 0; i < 10; i++) wisps.push({ x:Math.random()*W, y:Math.random()*H, r:1 + Math.random()*1.5, vx:(Math.random()-0.5)*9, vy:-6 - Math.random()*9, a:0.1 + Math.random()*0.2 });
+function drawWisps(dt){
+  ctx.save(); ctx.globalCompositeOperation = "lighter";
+  wisps.forEach(function(w){
+    w.x += w.vx * dt; w.y += w.vy * dt;
+    if(w.y < -4){ w.y = H + 4; w.x = Math.random() * W; }
+    if(w.x < -4) w.x = W + 4; if(w.x > W + 4) w.x = -4;
+    const tw = w.a * (0.6 + 0.4 * Math.sin(G.t * 3 + w.x));
+    ctx.fillStyle = "rgba(188,208,242," + tw.toFixed(3) + ")";
+    ctx.beginPath(); ctx.arc(w.x, w.y, w.r, 0, Math.PI * 2); ctx.fill();
+  });
+  ctx.restore();
+}
+
+// ================= HALL =================
+const HALL_GRID = [
+  "##################################",
+  "#...DD......DD.......DD......DD..#",
+  "#................................#",
+  "#.....c.........c.........c......#",
+  "#................................#",
+  "#................................#",
+  "#................................#",
+  "#.............rrrr...............#",
+  "#.............rrrr...............#",
+  "#.............rrrr...............#",
+  "#................................#",
+  "#................................#",
+  "#................................#",
+  "#.........c.........c.......c....#",
+  "#................................#",
+  "#................................#",
+  "#................................#",
+  "##################################"
+];
+const WINDOW_TX = [8, 17, 25], PORTRAIT_TX = [2, 15, 23, 32];
+const HALL_CANDLES = [];
+HALL_GRID.forEach(function(row, y){ for(let x = 0; x < row.length; x++) if(row[x] === "c") HALL_CANDLES.push({ x:x*TILE + 8, y:y*TILE + 9 }); });
+const HALL_DOORS = [
+  { tx:4,  id:"front",     label:"Front Door",     kind:"front",   open:function(){ return true; } },
+  { tx:12, id:"clinic",    label:"Dr. Nic's Care", kind:"clinic",  open:function(){ return !!F.toldOff; } },
+  { tx:21, id:"classroom", label:"Classroom",      kind:"school",  open:function(){ return !!F.compThought; } },
+  { tx:29, id:"mystery",   label:"???",            kind:"mystery", open:function(){ return false; } }
+];
+function hallDoorAt(tx){ for(let i = 0; i < HALL_DOORS.length; i++){ const d = HALL_DOORS[i]; if(tx >= d.tx && tx < d.tx + 2) return d; } return null; }
+function buildHall(g, grid){
+  const gw = grid[0].length, gh = grid.length;
+  const cellOf = function(x, y){ return (x < 0 || y < 0 || x >= gw || y >= gh) ? "#" : grid[y][x]; };
+  const R = rng(1337), ri = function(n){ return (R() * n) | 0; };
+  g.fillStyle = "#07040c"; g.fillRect(0, 0, gw*TILE, gh*TILE);
+  const tones = ["#2b2030","#2f2436","#271d2c","#322638"];
+  for(let y = 1; y < gh - 1; y++) for(let x = 1; x < gw - 1; x++){
+    const px = x*TILE, py = y*TILE;
+    for(let k = 0; k < 2; k++){
+      const yy = py + k*8;
+      g.fillStyle = tones[ri(4)]; g.fillRect(px, yy, TILE, 8);
+      g.fillStyle = "rgba(255,235,210,0.05)"; g.fillRect(px, yy, TILE, 1);
+      g.fillStyle = "#1b1322"; g.fillRect(px, yy + 7, TILE, 1);
+      if(R() < 0.5) g.fillRect(px + 2 + ri(12), yy, 1, 7);
+      if(R() < 0.6){ g.fillStyle = "rgba(0,0,0,0.2)"; g.fillRect(px + 1 + ri(9), yy + 2 + ri(3), 5, 1); }
+      if(R() < 0.04){ g.fillStyle = "#1e1625"; g.fillRect(px + 2 + ri(11), yy + 3, 2, 2); }
+    }
+  }
+  // rug
+  let a = 99, b = 99, c = -1, d = -1;
+  for(let y = 0; y < gh; y++) for(let x = 0; x < gw; x++) if(grid[y][x] === "r"){ a = Math.min(a,x); b = Math.min(b,y); c = Math.max(c,x); d = Math.max(d,y); }
+  if(c >= 0){
+    const rx = a*TILE, ry = b*TILE, rw = (c-a+1)*TILE, rh = (d-b+1)*TILE, cx = rx + (rw>>1), cy = ry + (rh>>1);
+    g.fillStyle = "#d9cbb0"; for(let yy = ry + 2; yy < ry + rh - 1; yy += 3){ g.fillRect(rx - 3, yy, 3, 1); g.fillRect(rx + rw, yy, 3, 1); }
+    g.fillStyle = "#3a1620"; g.fillRect(rx, ry, rw, rh);
+    g.fillStyle = "#c8842f"; rectLine(g, rx + 2, ry + 2, rw - 4, rh - 4);
+    g.fillStyle = "#5a2230"; g.fillRect(rx + 4, ry + 4, rw - 8, rh - 8);
+    g.fillStyle = "#c8842f";
+    for(let i = 0; i <= 13; i++){ g.fillRect(cx+i, cy+13-i, 1, 1); g.fillRect(cx-i, cy+13-i, 1, 1); g.fillRect(cx+i, cy-13+i, 1, 1); g.fillRect(cx-i, cy-13+i, 1, 1); }
+    g.fillStyle = "#7a2d3f";
+    for(let i = 0; i <= 6; i++){ g.fillRect(cx+i, cy+6-i, 1, 1); g.fillRect(cx-i, cy+6-i, 1, 1); g.fillRect(cx+i, cy-6+i, 1, 1); g.fillRect(cx-i, cy-6+i, 1, 1); }
+    g.fillStyle = "#c8842f"; g.fillRect(cx - 1, cy - 1, 2, 2);
+    [[8,8],[rw-10,8],[8,rh-10],[rw-10,rh-10]].forEach(function(o){ g.fillRect(rx + o[0], ry + o[1], 2, 2); });
+  }
+  // wear
+  g.fillStyle = "rgba(8,4,12,0.35)"; pdisc(g,70,200,6); pdisc(g,77,203,4); pdisc(g,390,120,7); pdisc(g,430,230,5); pdisc(g,300,50,4);
+  g.fillStyle = "rgba(8,4,12,0.85)";
+  const crack = function(x, y, n){ for(let i = 0; i < n; i++){ g.fillRect(x, y, 1, 1); x += 1; y += ri(3) - 1; if(R() < 0.08) pline(g, x, y, x + 3, y + 3); } };
+  crack(60,130,18); crack(330,200,22); crack(460,70,14);
+  for(let i = 0; i < 260; i++){ g.fillStyle = R() < 0.5 ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.25)"; g.fillRect(16 + ri(gw*TILE - 32), 16 + ri(gh*TILE - 32), 1, 1); }
+  g.fillStyle = "rgba(170,190,230,0.16)";
+  for(let i = 0; i < 9; i++){ const x = 40 + i*14, y = 236 - i*6 + (i % 2 ? 5 : -3); g.fillRect(x, y+2, 3, 2); g.fillRect(x-1, y, 1, 1); g.fillRect(x+1, y-1, 1, 1); g.fillRect(x+3, y, 1, 1); }
+  WINDOW_TX.forEach(function(tx){ const px = tx*TILE; g.fillStyle = "rgba(70,95,140,0.30)"; g.fillRect(px+3,36,10,1); g.fillRect(px+1,37,14,3); g.fillRect(px+3,40,10,1); g.fillStyle = "rgba(220,235,255,0.35)"; g.fillRect(px+5,38,2,1); g.fillRect(px+10,38,1,1); });
+  // walls
+  const fl = function(x, y){ return cellOf(x, y) !== "#"; };
+  for(let y = 0; y < gh; y++) for(let x = 0; x < gw; x++){
+    if(grid[y][x] !== "#") continue;
+    const px = x*TILE, py = y*TILE, below = fl(x, y+1), y0 = below ? py + 6 : py, h = below ? 10 : TILE;
+    g.fillStyle = "#241a30"; g.fillRect(px, y0, TILE, h);
+    g.fillStyle = "#2b2039"; g.fillRect(px+3, y0, 2, h); g.fillRect(px+11, y0, 2, h);
+    g.fillStyle = "#3b2a52";
+    for(let yy = y0 + ((x+y) % 2 ? 2 : 5); yy < y0 + h - 1; yy += 6){ g.fillRect(px+8, yy-1, 1, 1); g.fillRect(px+7, yy, 3, 1); g.fillRect(px+8, yy+1, 1, 1); }
+    if(R() < 0.08){ g.fillStyle = "rgba(8,4,12,0.4)"; g.fillRect(px+2+ri(8), y0+1, 5, 2); g.fillRect(px+4+ri(6), y0+3, 1, 3+ri(4)); }
+    if(below){
+      g.fillStyle = "#2c2138"; g.fillRect(px, py, TILE, 5);
+      g.fillStyle = "#3b2d4a"; g.fillRect(px, py, TILE, 1);
+      g.fillStyle = "#241a30"; for(let i = 1; i < TILE; i += 4) g.fillRect(px+i, py+2, 2, 2);
+      g.fillStyle = "#120c1a"; g.fillRect(px, py+5, TILE, 1);
+      if(y === 0){
+        g.fillStyle = "#1f1520"; g.fillRect(px, py+11, TILE, 5);
+        g.fillStyle = "#15101a"; g.fillRect(px, py+12, 1, 3); g.fillRect(px+8, py+12, 1, 3);
+        g.fillStyle = "#4a3328"; g.fillRect(px, py+10, TILE, 1);
+        g.fillStyle = "#120c1a"; g.fillRect(px, py+14, TILE, 2);
+      }
+    }
+    g.fillStyle = "#120c1a";
+    if(fl(x+1, y)) g.fillRect(px + TILE - 2, py, 2, TILE);
+    if(fl(x-1, y)) g.fillRect(px, py, 2, TILE);
+    if(fl(x, y-1)) g.fillRect(px, py, TILE, 2);
+  }
+  WINDOW_TX.forEach(function(tx){
+    const px = tx*TILE;
+    g.fillStyle = "#4a3328"; g.fillRect(px+2,1,12,13);
+    g.fillStyle = "#26344f"; g.fillRect(px+3,2,10,10);
+    g.fillStyle = "#34486a"; g.fillRect(px+3,2,10,4);
+    g.fillStyle = "#4a3328"; g.fillRect(px+7,2,2,10); g.fillRect(px+3,7,10,1);
+    g.fillStyle = "#dfe8ff"; g.fillRect(px+10,3,2,2);
+    g.fillStyle = "#4a1a26"; g.fillRect(px+1,1,2,12); g.fillRect(px+13,1,2,12);
+    g.fillStyle = "#3a1220"; g.fillRect(px+2,1,1,12); g.fillRect(px+13,1,1,12);
+    g.fillStyle = "#6a5040"; g.fillRect(px+1,13,14,2);
+  });
+  PORTRAIT_TX.forEach(function(tx){
+    const px = tx*TILE;
+    g.fillStyle = "#6a4a2e"; g.fillRect(px+3,2,10,12);
+    g.fillStyle = "#c8842f"; g.fillRect(px+3,2,1,1); g.fillRect(px+12,2,1,1); g.fillRect(px+3,13,1,1); g.fillRect(px+12,13,1,1);
+    g.fillStyle = "#150e1a"; g.fillRect(px+4,3,8,10);
+    g.fillStyle = "#2a2030"; g.fillRect(px+5,4,6,5); g.fillRect(px+4,9,8,4);
+  });
+  const web = function(cx, cy, sx, sy, r){
+    g.fillStyle = "rgba(222,228,245,0.30)";
+    const rays = [[1,0],[0.92,0.38],[0.7,0.7],[0.38,0.92],[0,1]];
+    rays.forEach(function(q){ pline(g, cx, cy, cx + sx*q[0]*r, cy + sy*q[1]*r); });
+    [0.4,0.7,1].forEach(function(f){ for(let i = 0; i < rays.length - 1; i++){ const A = rays[i], B = rays[i+1]; pline(g, cx+sx*A[0]*r*f, cy+sy*A[1]*r*f, cx+sx*B[0]*r*f, cy+sy*B[1]*r*f); } });
+  };
+  web(TILE,TILE,1,1,18); web((gw-1)*TILE,TILE,-1,1,18); web(TILE,(gh-1)*TILE,1,-1,18); web((gw-1)*TILE,(gh-1)*TILE,-1,-1,18);
+}
+function drawHallDoors(g){
+  HALL_DOORS.forEach(function(d){
+    const px = d.tx*TILE, open = d.open();
+    g.fillStyle = "#120c1a"; g.fillRect(px-2, 0, 36, 32);
+    g.fillStyle = "#4a3328"; g.fillRect(px-2, 0, 36, 3);
+    g.fillStyle = "#6a4a2e"; g.fillRect(px-2, 0, 36, 1);
+    if(d.kind === "front"){
+      g.fillStyle = "#5a3a24"; g.fillRect(px+2,4,28,26);
+      g.fillStyle = "#6e4a2f"; g.fillRect(px+2,4,28,1);
+      g.fillStyle = "#3e2718"; g.fillRect(px+15,4,2,26);
+      g.fillStyle = "#cfe4ff"; g.fillRect(px+5,7,8,8); g.fillRect(px+19,7,8,8);
+      g.fillStyle = "#3e2718"; g.fillRect(px+8,7,1,8); g.fillRect(px+5,10,8,1); g.fillRect(px+22,7,1,8); g.fillRect(px+19,10,8,1);
+      g.fillStyle = "#4a2f1d"; g.fillRect(px+5,18,8,9); g.fillRect(px+19,18,8,9);
+      g.fillStyle = "#c8842f"; g.fillRect(px+13,19,2,2); g.fillRect(px+17,19,2,2);
+      g.fillStyle = "rgba(255,240,200,0.5)"; g.fillRect(px+2,30,28,1);
+    } else if(d.kind === "clinic"){
+      g.fillStyle = "#e9edf2"; g.fillRect(px+2,4,28,26);
+      g.fillStyle = "#cdd5df"; g.fillRect(px+2,4,28,1); g.fillRect(px+15,4,2,26);
+      g.fillStyle = "#d23c3c"; g.fillRect(px+13,8,6,14); g.fillRect(px+9,12,14,6);
+      g.fillStyle = "#8a93a0"; g.fillRect(px+11,22,2,3); g.fillRect(px+19,22,2,3);
+      if(open){ g.fillStyle = "rgba(188,220,242,0.45)"; g.fillRect(px+2,30,28,1); }
+    } else if(d.kind === "school"){
+      g.fillStyle = "#3f7a5a"; g.fillRect(px+2,4,28,26);
+      g.fillStyle = "#4f8f6a"; g.fillRect(px+2,4,28,1);
+      g.fillStyle = "#bfd8e6"; g.fillRect(px+10,7,12,9);
+      g.fillStyle = "rgba(60,80,90,0.5)"; for(let i = 0; i < 12; i += 3) g.fillRect(px+10+i,7,1,9); for(let j = 0; j < 9; j += 3) g.fillRect(px+10,7+j,12,1);
+      g.fillStyle = "#c7ccd3"; g.fillRect(px+6,20,20,2);
+      if(open){ g.fillStyle = "rgba(255,240,200,0.45)"; g.fillRect(px+2,30,28,1); }
+    } else {
+      g.fillStyle = "#3a2a1e"; g.fillRect(px+2,4,28,26);
+      g.fillStyle = "#4a3626"; g.fillRect(px+2,4,1,26);
+      g.fillStyle = "#2a1d14"; g.fillRect(px+9,4,1,26); g.fillRect(px+16,4,1,26); g.fillRect(px+23,4,1,26);
+      g.fillStyle = "#1d1a22"; g.fillRect(px+2,9,28,2); g.fillRect(px+2,23,28,2);
+      g.fillStyle = "#6a6470"; [4,10,16,22,27].forEach(function(rx){ g.fillRect(px+rx,9,1,1); g.fillRect(px+rx,23,1,1); });
+      g.fillRect(px+14,14,4,3);
+      g.fillStyle = "#8a5a2e"; g.fillRect(px+13,17,6,6);
+      g.fillStyle = "#c8842f"; g.fillRect(px+14,18,4,1);
+      g.fillStyle = "#120c1a"; g.fillRect(px+15,20,2,2);
+      const p = 0.4 + 0.3 * Math.sin(G.t * 3.6 + d.tx);
+      g.fillStyle = "rgba(243,168,71," + p.toFixed(2) + ")"; g.fillRect(px+15,12,2,2);
+      g.fillStyle = "rgba(243,168,71,0.35)"; g.fillRect(px+2,30,28,1);
+    }
+    if(!open && d.kind !== "mystery"){
+      g.fillStyle = "#8a8f99";
+      for(let o = 0; o < 2; o++){ pline(g, px+3, 6+o, px+29, 27+o); pline(g, px+29, 6+o, px+3, 27+o); }
+      g.fillStyle = "#8a5a2e"; g.fillRect(px+13,15,6,6);
+      g.fillStyle = "#6a6470"; g.fillRect(px+14,12,4,3);
+      g.fillStyle = "#120c1a"; g.fillRect(px+15,17,2,2);
+    }
+  });
+}
+function drawHallLive(g){
+  HALL_CANDLES.forEach(function(c){
+    const fl = 1 + Math.sin(G.t * 1.2 + c.x) * 0.15 + (Math.random() - 0.5) * 0.15;
+    g.fillStyle = "#d9cbb0"; g.fillRect(c.x-2, c.y-2, 4, 7);
+    g.fillStyle = "#f3a847"; g.fillRect(c.x-1, c.y-7, 2, Math.max(2, Math.round(5 * fl)));
+    g.fillStyle = "#ffe6a6"; g.fillRect(c.x, c.y-5, 1, 2);
+  });
+  drawHallDoors(g);
+  g.fillStyle = "rgba(190,210,245,0.55)";
+  WINDOW_TX.forEach(function(tx){ const gx = tx*TILE + 3; for(let i = 0; i < 3; i++){ const yy = (G.t * 30 + i*17 + tx*16) % 8; g.fillRect(gx + 1 + i*3, 2 + Math.floor(yy), 1, 2); } });
+  g.fillStyle = "#d8d08a";
+  PORTRAIT_TX.forEach(function(tx){ const px = tx*TILE, dx = player.x - (px + 8), o = dx > 20 ? 1 : (dx < -20 ? -1 : 0); g.fillRect(px+6+o, 6, 1, 1); g.fillRect(px+9+o, 6, 1, 1); });
+}
+function hallLight(){
+  const fl = 0.72 + Math.sin(G.t * 1.8) * 0.015 + (Math.random() - 0.5) * 0.01;
+  const L = [{ x:player.x, y:player.y - 6, r:92 + Math.sin(G.t * 3) * 4, s:1, tint:"rgba(243,168,71,", ta:0.5 }];
+  HALL_CANDLES.forEach(function(c){ L.push({ x:c.x, y:c.y, r:40 + Math.sin(G.t * 4.8 + c.x) * 3, s:0.95, tint:"rgba(243,168,71,", ta:0.6 }); });
+  WINDOW_TX.forEach(function(tx){ L.push({ x:tx*TILE + 8, y:8, r:30, s:0.5, tint:"rgba(120,160,230,", ta:0.45 }); });
+  HALL_DOORS.forEach(function(d){
+    const op = d.open();
+    L.push({ x:d.tx*TILE + 16, y:20, r:40, s:0.6, tint: op ? (d.kind === "front" ? "rgba(255,235,190," : "rgba(150,190,255,") : "rgba(243,168,71,", ta: op ? 0.55 : 0.35 });
+  });
+  drawDarkness(fl, L);
+}
+
+// ================= FIELD =================
+function buildFieldGrid(){
+  const w = 30, h = 22, rows = [];
+  const bottomBush = [1,2,3,5,6,8,9,10,12,13];
+  for(let y = 0; y < h; y++){
+    let r = "";
+    for(let x = 0; x < w; x++){
+      let c = ".";
+      if(y === 0 || y === h-1 || x === 0 || x === w-1) c = "#";
+      if(x <= 9 && y <= 1) c = "W";
+      if(y === 1 && (x === 4 || x === 5)) c = "D";
+      if(x >= 1 && x <= 11 && y >= 2 && y <= 11) c = "=";
+      if(y === 2 && x >= 7 && x <= 9) c = "r";
+      if(y === h-2 && bottomBush.indexOf(x) >= 0) c = "b";
+      if(x === w-2 && y >= 14 && y <= 19) c = "b";
+      if((x === 13 || x === w-2) && y >= 9 && y <= 12) c = "G";
+      r += c;
+    }
+    rows.push(r);
+  }
+  return rows;
+}
+const FIELD_GRID = buildFieldGrid();
+const GUN_BUSH = { x:9, y:20 };
+const PUDDLES = [[3,5,12],[8,9,10],[5,10,7],[16,6,14],[21,13,16],[24,5,10],[18,17,12],[10,4,8]];
+function buildField(g, grid){
+  const gw = grid[0].length, gh = grid.length, R = rng(4242), ri = function(n){ return (R() * n) | 0; };
+  for(let y = 0; y < gh; y++) for(let x = 0; x < gw; x++){
+    const c = grid[y][x], px = x*TILE, py = y*TILE;
+    if(c === "=" || c === "r"){
+      g.fillStyle = ((x*3 + y) % 2) ? "#3a3a41" : "#36363d"; g.fillRect(px, py, TILE, TILE);
+      for(let i = 0; i < 8; i++){ g.fillStyle = R() < 0.5 ? "#4b4b54" : "#2b2b31"; g.fillRect(px + ri(16), py + ri(16), 1, 1); }
+    } else {
+      g.fillStyle = (Math.floor(x/2) % 2 === 0) ? "#4f8a3c" : "#4a8237"; g.fillRect(px, py, TILE, TILE);
+      for(let i = 0; i < 7; i++){ g.fillStyle = R() < 0.5 ? "#5e9c49" : "#3e7230"; g.fillRect(px + ri(16), py + ri(15), 1, 2); }
+    }
+  }
+  // curb around the blacktop
+  g.fillStyle = "#8a8a90"; g.fillRect(TILE, 12*TILE, 11*TILE, 2); g.fillRect(12*TILE, 2*TILE, 2, 10*TILE + 2);
+  // cracks + faded hopscotch on the blacktop
+  g.fillStyle = "#26262b"; pline(g, 40, 120, 62, 131); pline(g, 62, 131, 70, 128); pline(g, 140, 70, 150, 92); pline(g, 100, 160, 120, 166);
+  g.fillStyle = "rgba(232,206,96,0.55)";
+  const hx = 3*TILE + 4, hy = 3*TILE + 6;
+  [1,2,1,2,1,2].forEach(function(n, i){ const yy = hy + i*12; if(n === 1) rectLine(g, hx + 6, yy, 13, 13); else { rectLine(g, hx, yy, 13, 13); rectLine(g, hx + 12, yy, 13, 13); } });
+  // pitch lines
+  g.fillStyle = "rgba(240,240,232,0.75)";
+  const x0 = 13*TILE + 8, x1 = 28*TILE + 8, y0 = 2*TILE + 8, y1 = 19*TILE + 8, mx = Math.round((x0 + x1) / 2), my = Math.round((y0 + y1) / 2);
+  rectLine(g, x0, y0, x1 - x0, y1 - y0); g.fillRect(mx, y0, 1, y1 - y0); pcircle(g, mx, my, 26); g.fillRect(mx - 1, my - 1, 2, 2);
+  rectLine(g, x0, my - 44, 44, 88); rectLine(g, x1 - 44, my - 44, 44, 88);
+  // fence
+  for(let y = 0; y < gh; y++) for(let x = 0; x < gw; x++){
+    if(grid[y][x] !== "#") continue;
+    const px = x*TILE, py = y*TILE;
+    g.fillStyle = "rgba(200,206,214,0.35)";
+    for(let yy = 0; yy < 16; yy++) for(let xx = 0; xx < 16; xx++) if((xx + yy) % 5 === 0 || (xx - yy + 20) % 5 === 0) g.fillRect(px + xx, py + yy, 1, 1);
+    g.fillStyle = "#9aa0aa"; g.fillRect(px, py + 1, TILE, 1); g.fillRect(px, py + 14, TILE, 1);
+    if((x + y) % 2 === 0){ g.fillStyle = "#7d828c"; g.fillRect(px, py, 2, TILE); }
+  }
+  // house facade + door
+  for(let y = 0; y < 2; y++) for(let x = 0; x <= 9; x++){
+    const px = x*TILE, py = y*TILE;
+    g.fillStyle = "#4f415e"; g.fillRect(px, py, TILE, TILE);
+    g.fillStyle = "#43374f"; for(let k = 3; k < TILE; k += 4) g.fillRect(px, py + k, TILE, 1);
+  }
+  g.fillStyle = "#2a2133"; g.fillRect(0, 0, 10*TILE, 3);
+  [1, 7].forEach(function(wx){ const px = wx*TILE + 2, py = 6; g.fillStyle = "#2b1f22"; g.fillRect(px, py, 28, 14); g.fillStyle = "#f3c46b"; g.fillRect(px+2, py+2, 24, 10); g.fillStyle = "#2b1f22"; g.fillRect(px+13, py+2, 2, 10); g.fillRect(px+2, py+6, 24, 1); });
+  const dx = 4*TILE, dy = TILE;
+  g.fillStyle = "#2a1c12"; g.fillRect(dx, dy - 6, 32, 22);
+  g.fillStyle = "#5a3a24"; g.fillRect(dx + 3, dy - 3, 26, 19);
+  g.fillStyle = "#3e2718"; g.fillRect(dx + 15, dy - 3, 2, 19);
+  g.fillStyle = "#c8842f"; g.fillRect(dx + 12, dy + 7, 2, 2); g.fillRect(dx + 18, dy + 7, 2, 2);
+  g.fillStyle = "#6b6b72"; g.fillRect(dx - 2, 2*TILE, 36, 3);
+  // bike racks + one bike
+  for(let x = 7; x <= 9; x++){
+    const px = x*TILE, py = 2*TILE;
+    g.fillStyle = "#b9bec7";
+    g.fillRect(px+3, py+5, 1, 10); g.fillRect(px+3, py+5, 5, 1); g.fillRect(px+7, py+5, 1, 10);
+    g.fillRect(px+9, py+5, 1, 10); g.fillRect(px+9, py+5, 5, 1); g.fillRect(px+13, py+5, 1, 10);
+    g.fillStyle = "#8a8f99"; g.fillRect(px, py+14, TILE, 1);
+  }
+  g.fillStyle = "#222"; pcircle(g, 8*TILE + 3, 2*TILE + 11, 4); pcircle(g, 8*TILE + 13, 2*TILE + 11, 4);
+  g.fillStyle = "#c0392b"; pline(g, 8*TILE + 3, 2*TILE + 11, 8*TILE + 8, 2*TILE + 6); pline(g, 8*TILE + 8, 2*TILE + 6, 8*TILE + 13, 2*TILE + 11); pline(g, 8*TILE + 8, 2*TILE + 6, 8*TILE + 8, 2*TILE + 11);
+  // bushes
+  for(let y = 0; y < gh; y++) for(let x = 0; x < gw; x++){
+    if(grid[y][x] !== "b") continue;
+    const px = x*TILE, py = y*TILE;
+    g.fillStyle = "#24561f"; pdisc(g, px+8, py+9, 7);
+    g.fillStyle = "#2f6b2a"; pdisc(g, px+6, py+7, 5); pdisc(g, px+11, py+8, 5);
+    g.fillStyle = "#3e8a34"; pdisc(g, px+7, py+6, 3); pdisc(g, px+11, py+6, 2);
+    g.fillStyle = "#5aa64a"; g.fillRect(px+6, py+4, 2, 1); g.fillRect(px+11, py+4, 1, 1);
+  }
+  // goals
+  const goal = function(gx, faceRight){
+    const left = gx*TILE, top = 9*TILE, bot = 13*TILE;
+    g.fillStyle = "rgba(230,230,235,0.45)";
+    for(let yy = top; yy < bot; yy += 3) g.fillRect(left + 2, yy, 12, 1);
+    for(let xx = left + 2; xx < left + 14; xx += 3) g.fillRect(xx, top, 1, bot - top);
+    g.fillStyle = "#f4f4f4";
+    g.fillRect(left + 1, top, 14, 2); g.fillRect(left + 1, bot - 2, 14, 2);
+    g.fillRect(faceRight ? left + 1 : left + 13, top, 2, bot - top);
+  };
+  goal(13, true); goal(28, false);
+}
+function fieldPhase(){ if(!F.nose) return "A"; if(!F.toldOff) return "pre"; if(!F.pcHint) return "B"; return "C"; }
+function drawFieldLive(g){
+  if(F.pcHint){
+    PUDDLES.forEach(function(p){
+      const x = p[0]*TILE, y = p[1]*TILE + 6, w = p[2];
+      g.fillStyle = "rgba(110,130,165,0.55)"; g.fillRect(x + 2, y, w - 4, 1); g.fillRect(x, y + 1, w, 3); g.fillRect(x + 2, y + 4, w - 4, 1);
+      g.fillStyle = "rgba(220,232,250,0.45)"; g.fillRect(x + 3, y + 2, 2, 1);
+    });
+    // roped off field
+    g.fillStyle = "#e8d27a";
+    g.fillRect(12*TILE + 4, 2*TILE + 4, 1, 10*TILE); g.fillRect(TILE, 12*TILE + 4, 11*TILE + 4, 1);
+    g.fillStyle = "#5a3a24";
+    for(let y = 2; y <= 12; y += 2) g.fillRect(12*TILE + 3, y*TILE, 3, 7);
+    for(let x = 1; x <= 11; x += 2) g.fillRect(x*TILE, 12*TILE + 2, 3, 7);
+    g.fillStyle = "#c0392b"; for(let y = 3; y <= 11; y += 2) g.fillRect(12*TILE + 5, y*TILE + 4, 2, 2);
+    const sx = 12*TILE + 8, sy = 12*TILE + 8;
+    g.fillStyle = "#5a3a24"; g.fillRect(sx + 7, sy + 8, 2, 8);
+    g.fillStyle = "#e9dfc6"; g.fillRect(sx, sy, 17, 9);
+    g.fillStyle = "#c0392b"; g.font = "7px monospace"; g.textBaseline = "top"; g.fillText("MUD", sx + 2, sy + 1);
+  }
+  if(F.boysMet && !F.gun && (Math.floor(G.t * 2) % 3 === 0)){
+    const bx = GUN_BUSH.x*TILE + 10, by = GUN_BUSH.y*TILE + 5;
+    g.fillStyle = "#ffffff"; g.fillRect(bx, by - 1, 1, 3); g.fillRect(bx - 1, by, 3, 1);
+  }
+}
+function fieldLight(){
+  if(!F.pcHint) return;
+  ctx.fillStyle = "rgba(62,70,84,0.40)"; ctx.fillRect(0, 0, W, H);
+  const gr = ctx.createLinearGradient(0, 0, 0, H);
+  gr.addColorStop(0, "rgba(28,32,42,0.40)"); gr.addColorStop(1, "rgba(28,32,42,0)");
+  ctx.fillStyle = gr; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = "rgba(200,210,230,0.35)";
+  for(let i = 0; i < 40; i++){ const x = (i * 53.3 + G.t * 30) % W, y = (i * 97.1 + G.t * 160) % H; ctx.fillRect(x | 0, y | 0, 1, 3); }
+}
+
+// ================= ROOMS (clinic + classroom) =================
+function roomGrid(w, h, items){
+  const g = [];
+  for(let y = 0; y < h; y++){
+    const r = [];
+    for(let x = 0; x < w; x++){
+      let c = ".";
+      if(y <= 1 || x === 0 || x === w-1 || y === h-1) c = "#";
+      if(y === h-1 && (x === 9 || x === 10)) c = "X";
+      r.push(c);
+    }
+    g.push(r);
+  }
+  items.forEach(function(it){ for(let y = it.y; y < it.y + it.h; y++) for(let x = it.x; x < it.x + it.w; x++) g[y][x] = "o"; });
+  return g.map(function(r){ return r.join(""); });
+}
+function itemAt(items, tx, ty){ for(let i = 0; i < items.length; i++){ const it = items[i]; if(tx >= it.x && tx < it.x + it.w && ty >= it.y && ty < it.y + it.h) return it; } return null; }
+function roomShell(g, grid, P){
+  const w = grid[0].length, h = grid.length;
+  for(let y = 0; y < h; y++) for(let x = 0; x < w; x++){
+    const c = grid[y][x], px = x*TILE, py = y*TILE;
+    if(c === "#"){
+      if(y <= 1 && x > 0 && x < w-1){
+        g.fillStyle = P.wall; g.fillRect(px, py, TILE, TILE);
+        if(y === 0){ g.fillStyle = P.wallTop; g.fillRect(px, 0, TILE, 4); g.fillStyle = P.trim; g.fillRect(px, 4, TILE, 1); }
+        else { g.fillStyle = P.base; g.fillRect(px, py + 10, TILE, 6); g.fillStyle = P.trim; g.fillRect(px, py + 10, TILE, 1); }
+      } else {
+        g.fillStyle = P.edge; g.fillRect(px, py, TILE, TILE);
+        g.fillStyle = P.wallTop;
+        if(x === 0 && y > 1) g.fillRect(px + TILE - 3, py, 3, TILE);
+        else if(x === w-1 && y > 1) g.fillRect(px, py, 3, TILE);
+        else if(y === h-1) g.fillRect(px, py, TILE, 3);
+      }
+    } else {
+      g.fillStyle = ((x + y) % 2) ? P.f1 : P.f2; g.fillRect(px, py, TILE, TILE);
+      g.fillStyle = P.grout; g.fillRect(px, py, TILE, 1); g.fillRect(px, py, 1, TILE);
+      if(c === "X"){ g.fillStyle = P.mat; g.fillRect(px, py + 3, TILE, TILE - 3); }
+    }
+  }
+  g.fillStyle = "rgba(0,0,0,0.12)"; g.fillRect(TILE, 2*TILE, (w-2)*TILE, 3);
+}
+const CLINIC_PAL = { wall:"#9cc8cb", wallTop:"#b7dde0", trim:"#5f9599", base:"#6fa3a8", edge:"#2c3b40", f1:"#e2ecec", f2:"#d6e3e3", grout:"#c3d3d3", mat:"#7a6b5a" };
+const CLASS_PAL  = { wall:"#e6d49a", wallTop:"#f0e2b3", trim:"#8b6b3d", base:"#7a8f5a", edge:"#3a2f22", f1:"#d9caa3", f2:"#cfbf96", grout:"#bfae85", mat:"#6b4f33" };
+const CLINIC_ITEMS = [
+  { t:"desk", x:7, y:3, w:6, h:1 }, { t:"cab", x:1, y:2, w:2, h:1 },
+  { t:"bed", x:15, y:4, w:3, h:2 }, { t:"bed", x:15, y:9, w:3, h:2 },
+  { t:"chairs", x:1, y:14, w:4, h:1 }, { t:"plant", x:18, y:2, w:1, h:1 }, { t:"plant", x:1, y:11, w:1, h:1 }
+];
+const CLINIC_GRID = roomGrid(20, 18, CLINIC_ITEMS);
+const CLASS_ITEMS = [ { t:"tdesk", x:8, y:3, w:4, h:1 }, { t:"shelf", x:1, y:2, w:2, h:2 }, { t:"pc", x:16, y:2, w:2, h:2 } ];
+[[2,7],[6,7],[12,7],[15,7],[2,10],[6,10],[12,10],[15,10],[2,13],[6,13],[12,13],[15,13]].forEach(function(p, i){
+  CLASS_ITEMS.push({ t:"sdesk", x:p[0], y:p[1], w:2, h:1, n:i, poem:(p[0] === 6 && p[1] === 7) });
+});
+const CLASS_GRID = roomGrid(20, 18, CLASS_ITEMS);
+function plant(g, px, py){
+  g.fillStyle = "#9a5b3c"; g.fillRect(px+4, py+9, 8, 6); g.fillStyle = "#7a452c"; g.fillRect(px+4, py+9, 8, 1);
+  g.fillStyle = "#3f8a3a"; pline(g, px+8, py+9, px+3, py+2); pline(g, px+8, py+9, px+13, py+3); pline(g, px+8, py+9, px+8, py+0); pline(g, px+8, py+9, px+5, py+4); pline(g, px+8, py+9, px+11, py+5);
+  g.fillStyle = "#5aa64a"; g.fillRect(px+3, py+2, 1, 1); g.fillRect(px+13, py+3, 1, 1); g.fillRect(px+8, py, 1, 1);
+}
+function buildClinic(g, grid){
+  roomShell(g, grid, CLINIC_PAL);
+  g.fillStyle = "#f4f7fa"; g.fillRect(9*TILE + 6, 6, 20, 20);
+  g.fillStyle = "#d23c3c"; g.fillRect(9*TILE + 13, 9, 6, 14); g.fillRect(9*TILE + 9, 13, 14, 6);
+  const cx = 4*TILE + 1;
+  g.fillStyle = "#6b5a48"; g.fillRect(cx - 1, 3, 16, 26);
+  g.fillStyle = "#f8f6ee"; g.fillRect(cx, 4, 14, 24);
+  g.fillStyle = "#2a2a2a";
+  g.fillRect(cx + 5, 6, 4, 4);
+  g.fillRect(cx + 3, 12, 3, 3); g.fillRect(cx + 8, 12, 3, 3);
+  g.fillRect(cx + 2, 17, 2, 2); g.fillRect(cx + 6, 17, 2, 2); g.fillRect(cx + 10, 17, 2, 2);
+  for(let i = 0; i < 5; i++) g.fillRect(cx + 2 + i*2, 21, 1, 1);
+  for(let i = 0; i < 6; i++) g.fillRect(cx + 2 + i*2, 24, 1, 1);
+  CLINIC_ITEMS.forEach(function(it){
+    const x0 = it.x*TILE, y0 = it.y*TILE, w = it.w*TILE, h = it.h*TILE;
+    if(it.t === "desk"){
+      g.fillStyle = "#9a6a45"; g.fillRect(x0, y0 + 2, w, 7);
+      g.fillStyle = "#b07c53"; g.fillRect(x0, y0 + 2, w, 1);
+      g.fillStyle = "#7a5235"; g.fillRect(x0, y0 + 9, w, 7);
+      g.fillStyle = "#f4f2ea"; g.fillRect(x0 + 8, y0 + 3, 9, 5); g.fillRect(x0 + 19, y0 + 4, 7, 4);
+      g.fillStyle = "#c0392b"; g.fillRect(x0 + w - 16, y0 + 1, 4, 5);
+      g.fillStyle = "#8a93a0"; pline(g, x0 + 34, y0 + 4, x0 + 44, y0 + 7); pline(g, x0 + 44, y0 + 7, x0 + 52, y0 + 4); g.fillRect(x0 + 52, y0 + 3, 2, 2);
+      g.fillStyle = "#5a3d28"; g.fillRect(x0 + 10, y0 + 11, 12, 1); g.fillRect(x0 + w - 22, y0 + 11, 12, 1);
+    } else if(it.t === "cab"){
+      g.fillStyle = "#e6ecf1"; g.fillRect(x0 + 1, y0 - 12, w - 2, 27);
+      g.fillStyle = "#c3ced8"; rectLine(g, x0 + 1, y0 - 12, w - 2, 27);
+      g.fillStyle = "#bfe0ea"; g.fillRect(x0 + 4, y0 - 9, 11, 12); g.fillRect(x0 + 17, y0 - 9, 11, 12);
+      g.fillStyle = "#e7b14a"; g.fillRect(x0 + 6, y0 - 5, 3, 4); g.fillStyle = "#f08aa8"; g.fillRect(x0 + 20, y0 - 6, 4, 5);
+      g.fillStyle = "#c3ced8"; g.fillRect(x0 + 4, y0 + 6, w - 8, 1);
+    } else if(it.t === "bed"){
+      g.fillStyle = "#7d8792"; g.fillRect(x0 + 1, y0 + 2, w - 2, h - 4);
+      g.fillStyle = "#f4f7fa"; g.fillRect(x0 + 3, y0 + 4, w - 6, h - 8);
+      g.fillStyle = "#ffffff"; g.fillRect(x0 + w - 13, y0 + 7, 8, h - 14);
+      g.fillStyle = "#4f9aa3"; g.fillRect(x0 + 3, y0 + 4, w - 19, h - 8);
+      g.fillStyle = "#6fb6be"; g.fillRect(x0 + w - 17, y0 + 4, 2, h - 8);
+      g.fillStyle = "#5b636c"; g.fillRect(x0 + 1, y0 + h - 2, 2, 2); g.fillRect(x0 + w - 3, y0 + h - 2, 2, 2);
+      g.fillStyle = "#9aa3ad"; g.fillRect(x0 + w - 3, y0, 2, h - 2);
+    } else if(it.t === "chairs"){
+      for(let i = 0; i < it.w; i++){ const px = x0 + i*TILE; g.fillStyle = "#b85f2a"; g.fillRect(px + 2, py0(y0) + 1, 12, 5); g.fillStyle = "#e07b39"; g.fillRect(px + 2, y0 + 6, 12, 6); g.fillStyle = "#5b636c"; g.fillRect(px + 3, y0 + 12, 1, 3); g.fillRect(px + 12, y0 + 12, 1, 3); }
+    } else if(it.t === "plant"){ plant(g, x0, y0); }
+  });
+}
+function py0(y){ return y; }
+function buildClass(g, grid){
+  roomShell(g, grid, CLASS_PAL);
+  const bx = 4*TILE + 2, by = 5, bw = 10*TILE - 4, bh = 20;
+  g.fillStyle = "#7a5530"; g.fillRect(bx - 2, by - 2, bw + 4, bh + 4);
+  g.fillStyle = "#2f4f3a"; g.fillRect(bx, by, bw, bh);
+  g.fillStyle = "rgba(240,240,230,0.8)";
+  let xx = bx + 6; [5,3,8,4,6].forEach(function(n){ g.fillRect(xx, by + 5, n*2, 1); g.fillRect(xx, by + 6, 1, 1); xx += n*2 + 4; });
+  xx = bx + 10; [7,4,9].forEach(function(n){ g.fillRect(xx, by + 11, n*2, 1); xx += n*2 + 5; });
+  g.fillStyle = "rgba(240,240,230,0.7)";
+  const cx = bx + bw - 22, cy = by + 8;
+  pcircle(g, cx, cy + 4, 4); g.fillRect(cx - 4, cy - 2, 1, 3); g.fillRect(cx + 4, cy - 2, 1, 3); g.fillRect(cx - 1, cy + 4, 1, 1); g.fillRect(cx + 1, cy + 4, 1, 1); pline(g, cx + 4, cy + 7, cx + 9, cy + 3);
+  g.fillStyle = "#d9d4c4"; g.fillRect(bx, by + bh + 1, bw, 2);
+  g.fillStyle = "#f5f2ea"; pdisc(g, 2*TILE + 8, 13, 6);
+  g.fillStyle = "#2a2a2a"; pcircle(g, 2*TILE + 8, 13, 6); g.fillRect(2*TILE + 8, 9, 1, 4); g.fillRect(2*TILE + 8, 13, 3, 1);
+  CLASS_ITEMS.forEach(function(it){
+    const x0 = it.x*TILE, y0 = it.y*TILE, w = it.w*TILE;
+    if(it.t === "tdesk"){
+      g.fillStyle = "#8a5a3a"; g.fillRect(x0, y0 + 2, w, 7); g.fillStyle = "#a06c47"; g.fillRect(x0, y0 + 2, w, 1);
+      g.fillStyle = "#6e4630"; g.fillRect(x0, y0 + 9, w, 7);
+      g.fillStyle = "#3c6fb0"; pdisc(g, x0 + w - 10, y0 + 2, 4); g.fillStyle = "#4f9a4a"; g.fillRect(x0 + w - 12, y0 + 1, 3, 2); g.fillRect(x0 + w - 9, y0 + 3, 2, 2);
+      g.fillStyle = "#c8842f"; g.fillRect(x0 + w - 11, y0 + 7, 3, 2);
+      g.fillStyle = "#c0392b"; pdisc(g, x0 + 10, y0 + 5, 2); g.fillStyle = "#3f8a3a"; g.fillRect(x0 + 10, y0 + 2, 1, 1);
+      g.fillStyle = "#f4f2ea"; g.fillRect(x0 + 18, y0 + 3, 10, 5);
+    } else if(it.t === "shelf"){
+      g.fillStyle = "#6e4630"; g.fillRect(x0, y0 - 6, w, 2*TILE + 6);
+      g.fillStyle = "#4e3020"; g.fillRect(x0 + 2, y0 - 4, w - 4, 2*TILE + 2);
+      const cols = ["#c0392b","#2e6fd1","#f2c230","#4f9a4a","#8e44ad","#e67e22"];
+      for(let s = 0; s < 3; s++){
+        let bxx = x0 + 3; const sy = y0 - 3 + s*12;
+        g.fillStyle = "#6e4630"; g.fillRect(x0 + 2, sy + 10, w - 4, 2);
+        for(let k = 0; k < 7; k++){ g.fillStyle = cols[(k + s*2) % cols.length]; const bw2 = 2 + ((k + s) % 2); g.fillRect(bxx, sy + 2 + ((k*3 + s) % 3), bw2, 8 - ((k*3 + s) % 3)); bxx += bw2 + 1; if(bxx > x0 + w - 5) break; }
+      }
+    } else if(it.t === "pc"){
+      g.fillStyle = "#8a5a3a"; g.fillRect(x0, y0 + 16, w, 7); g.fillStyle = "#6e4630"; g.fillRect(x0, y0 + 23, w, 9);
+      g.fillStyle = "#d8cfb4"; g.fillRect(x0 + 5, y0 + 1, 22, 17);
+      g.fillStyle = "#bdb497"; g.fillRect(x0 + 5, y0 + 16, 22, 2); g.fillRect(x0 + 12, y0 + 18, 8, 2);
+      g.fillStyle = "#0b2a14"; g.fillRect(x0 + 8, y0 + 4, 16, 10);
+      g.fillStyle = "#cfc6aa"; g.fillRect(x0 + 6, y0 + 21, 20, 4); g.fillStyle = "#a59d82"; for(let k = 0; k < 5; k++) g.fillRect(x0 + 8 + k*4, y0 + 22, 2, 1);
+    } else if(it.t === "sdesk"){
+      g.fillStyle = "#b58a55"; g.fillRect(x0 + 1, y0 + 2, 30, 8);
+      g.fillStyle = "#c99c64"; g.fillRect(x0 + 1, y0 + 2, 30, 1);
+      g.fillStyle = "#8f6a3f"; g.fillRect(x0 + 1, y0 + 10, 30, 2);
+      g.fillStyle = "#6b4f33"; g.fillRect(x0 + 3, y0 + 12, 2, 4); g.fillRect(x0 + 27, y0 + 12, 2, 4);
+      g.fillStyle = "#3e5f8a"; g.fillRect(x0 + 10, y0 + 13, 12, 3);
+      if(it.poem){
+        g.fillStyle = "#fbf8f0"; g.fillRect(x0 + 7, y0 + 3, 11, 6);
+        g.fillStyle = "#b9b3a3"; g.fillRect(x0 + 8, y0 + 5, 8, 1); g.fillRect(x0 + 8, y0 + 7, 6, 1);
+        g.fillStyle = "#f2c230"; g.fillRect(x0 + 20, y0 + 5, 8, 1); g.fillStyle = "#f08aa8"; g.fillRect(x0 + 28, y0 + 5, 1, 1); g.fillStyle = "#333"; g.fillRect(x0 + 19, y0 + 5, 1, 1);
+      }
+    }
+  });
+}
+function drawClassLive(g){
+  const it = CLASS_ITEMS[2], x0 = it.x*TILE, y0 = it.y*TILE;
+  const a = 0.55 + 0.12 * Math.sin(G.t * 9) + (Math.random() - 0.5) * 0.06;
+  g.fillStyle = "rgba(93,255,138," + a.toFixed(2) + ")"; g.fillRect(x0 + 8, y0 + 4, 16, 10);
+  g.fillStyle = "rgba(7,40,18,0.55)"; for(let k = 0; k < 10; k += 2) g.fillRect(x0 + 8, y0 + 4 + k, 16, 1);
+  g.fillStyle = "#0b2a14"; if(Math.floor(G.t * 2) % 2) g.fillRect(x0 + 10, y0 + 10, 3, 2);
+}
+
+// ================= CHARACTERS =================
+const BOYS = {
+  nic:    { id:"nic",    name:"Nic",    kind:"boy", pal:PAL.nic,    x:0, y:0, dir:"down", walk:false, talk:function(){ talkBoy("nic"); } },
+  miguel: { id:"miguel", name:"Miguel", kind:"boy", pal:PAL.miguel, x:0, y:0, dir:"down", walk:false, talk:function(){ talkBoy("miguel"); } },
+  artur:  { id:"artur",  name:"Artur",  kind:"boy", pal:PAL.artur,  x:0, y:0, dir:"down", walk:false, talk:function(){ talkBoy("artur"); } }
+};
+const DRNIC = { id:"drnic", name:"Dr. Nic", kind:"dr", pal:PAL.drnic, x:10*TILE, y:5*TILE + 12, dir:"down", walk:false, talk:function(){ talkDrNic(); } };
+function faceTo(n, t){ const dx = t.x - n.x, dy = t.y - n.y; n.dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "right" : "left") : (dy > 0 ? "down" : "up"); }
+
+// ================= SCENES =================
+function makeScene(def){
+  const sc = Object.assign({ npcs:[], solidChars:"#" }, def);
+  sc.w = def.grid[0].length; sc.h = def.grid.length; sc.pw = sc.w*TILE; sc.ph = sc.h*TILE;
+  const L = mk(sc.pw, sc.ph); def.build(L.g, def.grid); sc.layer = L.c;
+  return sc;
+}
+function cellAt(sc, tx, ty){ if(tx < 0 || ty < 0 || tx >= sc.w || ty >= sc.h) return "#"; return sc.grid[ty][tx]; }
+function solidAt(sc, tx, ty){ const c = cellAt(sc, tx, ty); return sc.isSolid ? sc.isSolid(c) : sc.solidChars.indexOf(c) >= 0; }
+function facingCell(){ const fp = frontPoint(); const tx = Math.floor(fp.x / TILE), ty = Math.floor(fp.y / TILE); return { tx:tx, ty:ty, c:cellAt(G.scene, tx, ty) }; }
+
+const hall = makeScene({
+  id:"hall", label:"Grace House", grid:HALL_GRID, solidChars:"#cD", build:buildHall,
+  spawn:function(from){ const d = HALL_DOORS.find(function(d){ return d.id === from; }); if(d) return { x:d.tx*TILE + TILE, y:2*TILE + 12, dir:"down" }; return { x:10*TILE, y:11*TILE + 8, dir:"up" }; },
+  live:drawHallLive, light:hallLight, wisps:true, interact:hallInteract, onEnter:hallEnter, update:hallUpdate,
+  hint:function(){ const f = facingCell(); if(f.c === "D"){ const d = hallDoorAt(f.tx); if(d) return "\u25B2 " + d.label + (d.open() ? "" : " (locked)"); } return "Grace House"; }
+});
+const field = makeScene({
+  id:"field", label:"Outside", grid:FIELD_GRID, build:buildField, npcs:[BOYS.nic, BOYS.miguel, BOYS.artur],
+  isSolid:function(c){ if("#WDrbG".indexOf(c) >= 0) return true; return c === "." && !!F.pcHint; },
+  spawn:function(){ return { x:5*TILE, y:2*TILE + 12, dir:"down" }; },
+  live:drawFieldLive, light:fieldLight, interact:fieldInteract, onEnter:fieldEnter, update:fieldUpdate,
+  hint:function(){ const f = facingCell(); if(f.c === "D") return "\u25B2 Back inside"; return F.pcHint ? "Outside \u00b7 gray day" : "Outside"; }
+});
+const clinic = makeScene({
+  id:"clinic", label:"Dr. Nic's Care", grid:CLINIC_GRID, solidChars:"#o", build:buildClinic, npcs:[DRNIC],
+  spawn:function(){ return { x:10*TILE, y:16*TILE + 8, dir:"up" }; },
+  light:roomLight, interact:clinicInteract, onEnter:clinicEnter,
+  hint:function(){ return "Dr. Nic's Care"; }
+});
+const classroom = makeScene({
+  id:"classroom", label:"Classroom", grid:CLASS_GRID, solidChars:"#o", build:buildClass,
+  spawn:function(){ return { x:10*TILE, y:16*TILE + 8, dir:"up" }; },
+  live:drawClassLive, light:roomLight, interact:classInteract, onEnter:classEnter,
+  hint:function(){ return "Classroom"; }
+});
+const SCENES = { hall:hall, field:field, clinic:clinic, classroom:classroom };
+
+function enterScene(id, from){
+  const sc = SCENES[id]; G.scene = sc; G.sceneId = id; S.scene = id; save();
+  const sp = sc.spawn(from);
+  player.x = sp.x; player.y = sp.y; player.dir = sp.dir; player.moving = false; player.frame = 0;
+  trail.length = 0;
+  cats.forEach(function(c, i){ c.x = player.x + (i ? 12 : -12); c.y = player.y + 2; });
+  G.fieldTime = 0;
+  if(id === "field") placeBoys();
+}
+function goScene(id, from){
+  if(G.mode === "fade") return;
+  G.mode = "fade"; sfx("click");
+  const fd = $("fade"); fd.classList.add("on");
+  setTimeout(function(){
+    enterScene(id, from); fd.classList.remove("on");
+    setTimeout(function(){ G.mode = "play"; if(G.scene.onEnter) G.scene.onEnter(from); }, 280);
+  }, 280);
+}
+
+// ================= HALL STORY =================
+function hallInteract(tx, ty, c){
+  if(c === "D"){ const d = hallDoorAt(tx); if(d) useHallDoor(d); return true; }
+  if(ty === 0 && PORTRAIT_TX.indexOf(tx) >= 0){ look("A portrait of someone very stern. Its eyes follow me. Rude."); return true; }
+  if(ty === 0 && WINDOW_TX.indexOf(tx) >= 0){ look("Rain on the glass. Everything out there looks... weirdly familiar."); return true; }
+  if(c === "c"){ look("A candle. Who keeps lighting these?"); return true; }
+  if(c === "r"){ look("A fancy rug. Probably cursed."); return true; }
+  return false;
+}
+function look(t){ G.looks++; say([["~", t]]); }
+function spookyLine(after){
+  F.spooky = 1; save(); logEvent("spooky", "said the house is spooky, wants to go outside");
+  say([["~","Okay. This place is a little spooky."],["~","I want to go outside."]], { onEnd:after });
+}
+function useHallDoor(d){
+  if(!d.open()){
+    if(d.id === "clinic") say([["~","Locked. A little sign says DR. NIC'S CARE."],["~","Good thing I'm not hurt."]]);
+    else if(d.id === "classroom") say([["~","Locked. I can hear chalk scratching on the other side."]]);
+    else say([["~","This one won't budge. Not yet."]], { choices:[
+      { label:"Knock", fn:function(){ logEvent("knock", "she knocked on the ??? door"); say(["You knock. Somewhere far away, someone hears it."]); } },
+      { label:"Leave it", fn:function(){} }
+    ]});
+    return;
+  }
+  if(d.id === "front"){
+    if(!F.spooky){ spookyLine(function(){ goScene("field", "door"); }); return; }
+    goScene("field", "door"); return;
+  }
+  goScene(d.id, "door");
+}
+function hallEnter(){
+  if(F.toldOff && !F.clinicNote){
+    F.clinicNote = 1; save();
+    say([["~","Ow. My nose is killing me."],["~","There has to be a doctor somewhere in this place."]]); return;
+  }
+  if(F.noseFixed && !F.compThought){
+    F.compThought = 1; save(); logEvent("classroom_open", "she wants a computer to find out where she is");
+    say([["~","Okay. Nose fixed. Now... where even am I?"],["~","If I could get on a computer, I could find out where I am."]]); return;
+  }
+}
+function hallUpdate(){
+  if(G.mode === "play" && F.intro && !F.spooky && (G.walk > 9 || G.looks >= 2)) spookyLine();
+}
+
+// ================= FIELD STORY =================
+function placeBoys(){
+  const ph = fieldPhase();
+  const P = ph === "A" ? { nic:[18,7], miguel:[22,10], artur:[17,12] }
+          : ph === "C" ? { nic:[7,6],  miguel:[4,8],   artur:[9,8] }
+          :              { nic:[15,4], miguel:[16,6],  artur:[15,8] };
+  Object.keys(P).forEach(function(k){ const b = BOYS[k]; b.x = P[k][0]*TILE + 8; b.y = P[k][1]*TILE + 12; b.dir = "down"; b.walk = false; });
+  G.ball.vis = (ph === "A");
+}
+function fieldEnter(){
+  if(!F.outside){
+    F.outside = 1; save(); logEvent("outside", "went out the front door");
+    say([["~","Fresh air. And... a football field?"],["~","Why does this place look so familiar?"]]); return;
+  }
+  if(F.nose && !F.boysMet){ boysApology(); return; }
+  if(F.pcHint && !F.grayNoticed){
+    F.grayNoticed = 1; save();
+    say([["~","Whoa. It got so gray out here."],["~","And why are they all just standing on the cement?"]]);
+  }
+}
+function fieldUpdate(dt){
+  const ph = fieldPhase();
+  if(ph === "A" && G.mode !== "cut"){
+    const order = [BOYS.nic, BOYS.miguel, BOYS.artur], seg = 1.1, tt = G.t / seg, i = Math.floor(tt) % 3, p = tt - Math.floor(tt);
+    const a = order[i], b = order[(i + 1) % 3];
+    G.ball.vis = true; G.ball.x = lerp(a.x, b.x, p); G.ball.y = lerp(a.y, b.y, p) - 2; G.ball.z = Math.sin(p * Math.PI) * 10;
+    a.dir = b.x > a.x ? "right" : "left"; b.dir = a.x > b.x ? "right" : "left";
+    if(G.mode === "play"){
+      G.fieldTime += dt;
+      const c = cellAt(field, Math.floor(player.x / TILE), Math.floor(player.y / TILE));
+      if(c === "." || G.fieldTime > 7) startNose();
+    }
+  }
+  if(ph === "C" && G.mode === "play") faceTo(BOYS.nic, player);
+}
+function startNose(){
+  F.nose = 1; save(); logEvent("nose", "a football hit her in the face");
+  const m = BOYS.miguel, ball = G.ball;
+  const near = function(x, y){ return { x:clamp(x, 24, field.pw - 24), y:clamp(y, 3*TILE + 12, field.ph - 3*TILE) }; };
+  const tg = { nic:near(player.x - 20, player.y + 4), miguel:near(player.x + 20, player.y + 4), artur:near(player.x, player.y + 22) };
+  if(player.y > field.ph - 5*TILE) tg.artur = near(player.x, player.y - 22);
+  const st = {}; let x0 = 0, y0 = 0;
+  cutscene([
+    { d:0.35, start:function(){ m.dir = player.x > m.x ? "right" : "left"; } },
+    { d:0.55, start:function(){ x0 = m.x; y0 = m.y - 4; ball.vis = true; sfx("click"); },
+      upd:function(p){ ball.x = lerp(x0, player.x, p); ball.y = lerp(y0, player.y - 2, p); ball.z = Math.sin(p * Math.PI) * 16 + p * 10; } },
+    { d:0.8, start:function(){ sfx("bonk"); G.shake = 0.45; player.dir = "down"; },
+      upd:function(p){ ball.x = player.x + p * 26; ball.y = player.y + p * 10; ball.z = Math.abs(Math.sin(p * Math.PI * 2)) * (1 - p) * 12; } },
+    { d:1.3, start:function(){ Object.keys(tg).forEach(function(k){ st[k] = { x:BOYS[k].x, y:BOYS[k].y }; }); },
+      upd:function(p){ Object.keys(tg).forEach(function(k){ const b = BOYS[k]; b.x = lerp(st[k].x, tg[k].x, p); b.y = lerp(st[k].y, tg[k].y, p); b.walk = true; faceTo(b, tg[k].x === b.x && tg[k].y === b.y ? player : tg[k]); }); } },
+    { d:0.01, start:function(){
+        Object.keys(BOYS).forEach(function(k){ BOYS[k].walk = false; faceTo(BOYS[k], player); });
+        G.mode = "play"; say([["Grace","OW! My NOSE!"]], { onEnd:boysApology });
+      } }
+  ]);
+}
+function boysApology(){
+  F.boysMet = 1; save(); logEvent("boys", "three boys came over, nobody owned up");
+  say([
+    ["Nic","Oh no. Oh no no no. Are you okay?"],
+    ["Artur","Wasn't me."],
+    ["Miguel","Wasn't me either. The ball just... went."],
+    ["Grace","Balls don't kick themselves. Who did it?"],
+    ["Artur","Nobody. It's fine. Noses grow back."],
+    ["Miguel","Yeah, let's just forget it. Wanna be friends?"],
+    ["Nic","...friends. Yeah. We could totally be friends."],
+    ["~","Nobody's owning up. They're covering for each other."],
+    ["~","Maybe I can scare it out of them. There's got to be something around here."]
+  ]);
+}
+function talkBoy(id){
+  const ph = fieldPhase();
+  if(ph === "A") return;
+  if(ph === "pre"){
+    if(F.gun){
+      say([["~","They're all looking at me like I'm the problem."]], { choices:[
+        { label:"Point the gun at them", fn:confession },
+        { label:"Never mind", fn:function(){} }
+      ]});
+      return;
+    }
+    const L = { nic:[["Nic","So... friends?"],["~","He's smiling at me like nothing happened."]],
+                miguel:[["Miguel","It wasn't me! Probably. Who's asking?"]],
+                artur:[["Artur","We said sorry. Kind of. Let it go."]] }[id];
+    say(L.concat([["~","They won't talk. I need something scarier than my nose right now."]])); return;
+  }
+  if(ph === "B"){
+    const L = { nic:[["Nic","..."],"(He waves. Slowly. Like he's underwater.)"],
+                miguel:[["Miguel","WAAAAAAH"],"(He's crying too hard to talk.)"],
+                artur:[["Artur","You should get that nose looked at. Pretty sure there's a doctor inside."]] }[id];
+    say(L); return;
+  }
+  if(id === "nic"){
+    G.nicTalks++;
+    const opts = [
+      [["Nic","..."],"(Nic is staring at you. Completely speechless.)"],
+      [["Nic","..."],"(He opened his mouth. Nothing came out.)"],
+      [["Nic","...hi."],"(That's all he's got. He looks like he just saw colour for the first time.)"]
+    ];
+    if(G.nicTalks === 1) logEvent("nic", "little Nic just stared at her, speechless");
+    say(opts[(G.nicTalks - 1) % opts.length]); return;
+  }
+  if(id === "artur"){
+    if(!F.arturTalk){
+      say([
+        ["Grace","Why are you all just standing here? Aren't you playing anymore?"],
+        ["Artur","It rained. The field's all muddy, they don't let us down there."],
+        ["Grace","Do you know the password for the classroom computer?"],
+        ["Artur","Yeah. But you never wanted to be my friend, so... no."],
+        ["Artur","Miguel likes poems, though. Maybe you could win him back."]
+      ], { onEnd:function(){ F.arturTalk = 1; save(); logEvent("artur", "Artur told her Miguel likes poems"); } });
+      return;
+    }
+    say(F.password ? [["Artur","Told you he likes poems."]] : [["Artur","Miguel likes poems. I'm just saying."]]); return;
+  }
+  miguelTalk();
+}
+function confession(){
+  F.toldOff = 1; save(); logEvent("gun", "she pulled the gun, Miguel confessed, she told him they'll never be friends");
+  say([
+    ["Grace","Okay. Somebody start talking."],
+    ["Artur","WHOA. WHOA WHOA WHOA."],
+    ["Nic","..."],
+    "(Nic doesn't look scared. He looks like he's watching a sunrise.)",
+    ["Miguel","IT WAS ME! I kicked it! I'm sorry! Can we still be friends?"],
+    ["Grace","We will never be friends."],
+    ["Miguel","WAAAAAAAAH"],
+    "(Miguel bursts into tears.)",
+    ["Grace","Ugh. My nose really hurts."],
+    ["~","I should go back inside."]
+  ], { onEnd:function(){ sfx("sob"); } });
+}
+function miguelTalk(){
+  const p = S.poem;
+  if(F.password){ say([["Miguel","Friends!"],["Miguel","Did the computer work?"]]); return; }
+  if(!p){ say([["Miguel","*sob*"],"(He's crying too hard to answer you.)"]); return; }
+  if(p.status === "pending"){
+    pollCtrl();
+    if(!p.given){
+      p.given = true; save(); logEvent("poem_given", "she handed Miguel the poem");
+      say(["You hand Miguel your poem.","He unfolds it. Sniffles. Reads it very, very slowly.",["~","I should give him a minute."]]); return;
+    }
+    say(["(Miguel is still reading your poem. Sniffle.)",["~","Maybe I should give him a little longer."]]); return;
+  }
+  if(p.status === "rejected"){
+    if(!p.seen){ p.seen = true; save(); say([["Miguel","*sniff* ...it doesn't feel real."],"(He keeps crying.)",["~","Maybe I should write him a better one."]]); return; }
+    say([["Miguel","*sob*"],["~","He didn't buy that poem. I should write another one."]]); return;
+  }
+  const pre = p.given ? [] : ["You hand Miguel your poem."];
+  p.given = true; save();
+  say(pre.concat([
+    ["Miguel","*sniff* ...you wrote this? For me?"],
+    ["Miguel","Nobody ever wrote me a poem before."],
+    ["Miguel","Okay. Okay. We can be friends."],
+    ["Grace","Friends. So... about that computer password."],
+    ["Miguel","It's " + CFG.PASSWORD + ". Don't tell the teacher."]
+  ]), { onEnd:function(){ F.password = 1; save(); sfx("chime"); logEvent("password", "Miguel forgave her and gave her the password"); } });
+}
+function fieldInteract(tx, ty, c){
+  if(c === "D"){ goScene("hall", "front"); return true; }
+  if(c === "b"){ bushLook(tx, ty); return true; }
+  if(c === "r"){ say([["~","Bike racks. One bike, no lock. Bold."]]); return true; }
+  if(c === "G"){ say([["~","A goal. The net has a hole in it. Shocking."]]); return true; }
+  if(c === "W"){ say([["~","The house. From out here it looks almost normal."]]); return true; }
+  if(c === "#"){ say([["~","A fence. Past it, everything goes kind of... fuzzy."]]); return true; }
+  if(c === "." && F.pcHint){ say([["~","The field's roped off. Way too muddy."]]); return true; }
+  return false;
+}
+function bushLook(tx, ty){
+  if(tx === GUN_BUSH.x && ty === GUN_BUSH.y){
+    if(F.gun){ say([["~","Just a bush now. A bush with secrets."]]); return; }
+    if(!F.boysMet){ say([["~","Something metal glints in there. Probably nothing."]]); return; }
+    F.gun = 1; save(); sfx("chime"); logEvent("gun_found", "found a gun in the bushes");
+    say([["~","Wait. There's a gun in this bush."],["~","Who leaves a gun in a bush at a school?"],"You take the gun.",["~","Okay. Let's try that conversation again."]]);
+    return;
+  }
+  const msgs = ["Just leaves.","A very surprised worm.","Somebody's lost mitten.","An empty juice box. Tragic.","Prickly. Ow.","A ladybug. She's busy.","Nothing. Just bush."];
+  say([["~", msgs[(tx*7 + ty*3) % msgs.length]]]);
+}
+
+// ================= CLINIC STORY =================
+function clinicEnter(){
+  if(!F.clinicSeen){ F.clinicSeen = 1; save(); logEvent("clinic", "walked into Dr. Nic's Care"); say([["~","A doctor's office. Thank goodness."]]); }
+}
+function talkDrNic(){
+  if(!F.noseFixed){
+    say([["Dr. Nic","Welcome to Dr. Nic's Care. What seems to be the problem?"]], { choices:[
+      { label:"A boy kicked a ball at my face", fn:function(){ noseExam([["Dr. Nic","Kids. Let's have a look."]]); } },
+      { label:"I'm just here for the lollipops", fn:function(){ noseExam([["Dr. Nic","Lollipops are for patients."],["Dr. Nic","Your nose is pointing northwest. So, congratulations, you're a patient."]]); } }
+    ]});
+    return;
+  }
+  if(F.blind && !F.glasses){
+    say([["Dr. Nic","You're squinting at me like I'm a ghost."],["Grace","I can't see anything. Everything's blurry."],["Dr. Nic","Hmm. Let's check those eyes. Read the chart for me."]], { onEnd:startEyeTest });
+    return;
+  }
+  if(F.glasses && !F.napped){ say([["Dr. Nic","Bed's right there. Doctor's orders."]]); return; }
+  if(F.napped){ say([["Dr. Nic","Sleep well? Told you."]]); return; }
+  say([["Dr. Nic","Come back if anything else breaks. Or bends."]]);
+}
+function noseExam(pre){
+  say(pre.concat([["Dr. Nic","Hmm. Yep. That's a nose, and it's pointing somewhere it shouldn't."],["Dr. Nic","I'm going to pop it back in place. On three. Hold still."]]), { onEnd:startNoseFix });
+}
+function startNoseFix(){
+  openPanel('<h2>Hold still</h2><p id="noseMsg">One...</p><div class="bar"><div class="zone"></div><div class="mark" id="noseMark"></div></div><p>Press A when the marker is in the green.</p><div class="prow"><button class="pbtn" id="noseBtn">Now</button></div>');
+  const st = { p:0, v:1.5, tries:0, done:false };
+  G.mode = "mini";
+  G.mini = {
+    st:st,
+    update:function(dt){ st.p += st.v * dt; if(st.p > 1){ st.p = 1; st.v = -st.v; } if(st.p < 0){ st.p = 0; st.v = -st.v; } const m = $("noseMark"); if(m && m.style) m.style.left = "calc(" + (st.p * 100).toFixed(1) + "% - 3px)"; },
+    onA:function(){ noseTry(st); }
+  };
+  onClick("noseBtn", function(){ noseTry(st); });
+}
+function noseTry(st){
+  if(st.done) return;
+  st.tries++;
+  if(st.p >= 0.41 && st.p <= 0.59){ st.done = true; noseSuccess(st.tries); return; }
+  sfx("bonk");
+  const m = $("noseMsg"); if(m) m.textContent = ["Ow! Hold STILL.","Missed. One... two...","Again. Stop flinching."][st.tries % 3];
+}
+function noseSuccess(tries){
+  closePanel(); sfx("crack"); G.shake = 0.35;
+  F.noseFixed = 1; save(); logEvent("nose_fixed", "Dr. Nic fixed her nose (" + tries + " tries)");
+  say(["*CRACK*",["Grace","OW! You said on three!"],["Dr. Nic","I lied. It's better when you don't see it coming."],["Dr. Nic","Little bandage... there. Good as new. Mostly."],["Dr. Nic","Diagnosis: football to the face."],["Dr. Nic","Prescription: stay away from boys who kick things."]]);
+}
+const EYE_SIZES = [46, 36, 28, 21, 15, 11, 7, 4];
+let eye = null;
+function startEyeTest(){
+  eye = { i:0, dir:"right" };
+  openPanel('<h2>Read the chart</h2><p id="eyeLine">Line 1</p><canvas class="eyecv" id="eyeCv" width="170" height="170"></canvas><p>Which way is the E pointing?</p><div class="arrows"><span></span><button class="pbtn" data-d="up">&#9650;</button><span></span><button class="pbtn" data-d="left">&#9664;</button><button class="pbtn" data-d="down">&#9660;</button><button class="pbtn" data-d="right">&#9654;</button></div>');
+  const btns = pbox.querySelectorAll ? pbox.querySelectorAll("[data-d]") : [];
+  for(let k = 0; k < btns.length; k++){ const b = btns[k]; b.addEventListener("click", function(e){ e.stopPropagation(); eyeAnswer(b.getAttribute("data-d")); }); }
+  G.mode = "mini"; G.mini = { onDir:function(d){ eyeAnswer(d); }, onA:function(){} };
+  drawE();
+}
+function drawE(){
+  eye.dir = ["up","down","left","right"][(Math.random() * 4) | 0];
+  const ln = $("eyeLine"); if(ln) ln.textContent = "Line " + (eye.i + 1);
+  const c = $("eyeCv"); if(!c || !c.getContext) return;
+  const g = c.getContext("2d"); if(!g || !g.fillRect) return;
+  g.setTransform(1, 0, 0, 1, 0, 0); g.fillStyle = "#fbf8f0"; g.fillRect(0, 0, 170, 170);
+  const s = EYE_SIZES[eye.i], u = s / 5;
+  g.translate(85, 85); g.rotate({ right:0, down:Math.PI/2, left:Math.PI, up:-Math.PI/2 }[eye.dir]);
+  g.fillStyle = "#111"; g.fillRect(-s/2, -s/2, u, s); g.fillRect(-s/2, -s/2, s, u); g.fillRect(-s/2, -u/2, s, u); g.fillRect(-s/2, s/2 - u, s, u);
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  c.style.filter = "blur(" + (0.6 + eye.i * 0.45).toFixed(2) + "px)";
+}
+function eyeAnswer(d){
+  if(!eye) return;
+  const last = eye.i >= EYE_SIZES.length - 1;
+  if(!last && d === eye.dir){ eye.i++; sfx("blip"); drawE(); return; }
+  const reached = eye.i + 1; eye = null; sfx("bonk"); closePanel();
+  logEvent("eye_test", "failed the eye test on line " + reached);
+  say([["Dr. Nic","Hmm. Line " + reached + ". Just as I thought."],["Dr. Nic","You need glasses. Lucky for you, I know your formula by heart."],"(Dr. Nic hands you a pair of glasses with brown frames.)"], { onEnd:function(){
+    F.glasses = 1; save(); applyBlur(); sfx("chime"); logEvent("glasses", "got her glasses");
+    say([["Grace","Whoa. Everything's so sharp."],["Dr. Nic","Careful. These will make you very tired at first."],["Dr. Nic","So get lots and lots of sleep."],["Dr. Nic","You can take a nap on one of the beds. Go on."]]);
+  }});
+}
+function clinicInteract(tx, ty){
+  if(ty <= 1 && tx === 4){ say([["~", (F.blind && !F.glasses) ? "A big blurry blob. Then smaller blurry blobs." : "E. F P. T O Z. The classics."]]); return true; }
+  if(ty <= 1 && (tx === 9 || tx === 10)){ say([["~","A big red cross. Very official."]]); return true; }
+  const it = itemAt(CLINIC_ITEMS, tx, ty); if(!it) return false;
+  if(it.t === "bed"){ bedLook(); return true; }
+  const m = { desk:"Dr. Nic's desk. Papers, a stethoscope, and a mug that says WORLD'S OKAYEST DOCTOR.", cab:"Bandages, cotton balls, and a jar of lollipops. Hands off.", chairs:"Waiting room chairs. Uncomfortable on purpose.", plant:"A plant. Fake. Very convincing." }[it.t];
+  say([["~", m]]); return true;
+}
+function bedLook(){
+  if(F.glasses && !F.napped){
+    say([["~","Lots and lots of sleep. Doctor's orders."]], { choices:[ { label:"Take a nap", fn:nap }, { label:"Not yet", fn:function(){} } ] }); return;
+  }
+  if(F.napped){ say([["~","Best nap of my life."]]); return; }
+  say([["~","A hospital bed. Crisp sheets. I'm not tired."]]);
+}
+function nap(){
+  G.mode = "wait";
+  F.napped = 1; save(); logEvent("season1_complete", "she put on her glasses and fell asleep in Dr. Nic's Care");
+  const fd = $("fade"); fd.classList.add("on");
+  setTimeout(function(){
+    openPanel('<h2>Season 1</h2><p>Grace put on her new glasses, lay down on the crisp sheets, and fell fast asleep.</p><p>When she wakes up, it won\u2019t be elementary school anymore.</p><p style="color:var(--amber)">To be continued.</p><div class="prow"><button class="pbtn" id="endBtn">Keep exploring</button></div>');
+    fd.classList.remove("on");
+    onClick("endBtn", function(){ closePanel(); });
+    $("titleSub").textContent = "Season 1 complete";
+  }, 1600);
+}
+
+// ================= CLASSROOM STORY =================
+function classEnter(){
+  if(!F.classSeen){ F.classSeen = 1; save(); logEvent("classroom", "walked into the classroom"); say([["~","A classroom. Tiny desks. And... a computer in the corner!"]]); }
+}
+function classInteract(tx, ty){
+  if(ty <= 1){
+    if(tx >= 4 && tx <= 13){ say([["~","The board says BE KIND TO YOUR CLASSMATES."],["~","Someone drew a cat in the corner."]]); return true; }
+    if(tx === 2){ say([["~","The clock is stuck at ten past ten."]]); return true; }
+    return false;
+  }
+  const it = itemAt(CLASS_ITEMS, tx, ty); if(!it) return false;
+  if(it.t === "pc"){ usePC(); return true; }
+  if(it.t === "sdesk" && it.poem){ poemDesk(); return true; }
+  if(it.t === "sdesk"){
+    const m = ["Someone carved initials into this desk.","Gum. Under the desk. Don't.","A desk. Very tiny. Was I ever this small?","A pencil case shaped like a dinosaur.","A note that says DO YOU LIKE ME? YES / NO. Nobody checked anything."];
+    say([["~", m[it.n % m.length]]]); return true;
+  }
+  say([["~", { tdesk:"The teacher's desk. A globe and a red apple. The apple is fake.", shelf:"Picture books. One is about a ghost who just wanted friends." }[it.t]]]);
+  return true;
+}
+function usePC(){
+  if(F.glasses){
+    logEvent("pc_glasses", "read the computer screen with her glasses on");
+    openPanel('<div class="crt"><div class="l">SCHOOL-NET 98</div><div class="l">WELCOME BACK, GRACE.</div><div class="l">YOU ARE HERE:</div><div class="l big">' + CFG.COORDS + '</div></div><div class="prow"><button class="pbtn" id="pcX">Close</button></div>');
+    onClick("pcX", closePanel); return;
+  }
+  if(F.blind){ say([["~","The screen is just a green smear. I can't read any of it."]]); return; }
+  openPC();
+}
+function openPC(){
+  if(!F.pcHint){ F.pcHint = 1; save(); logEvent("pc_locked", "found the locked computer"); }
+  openPanel('<div class="crt"><div class="l">SCHOOL-NET 98</div><div class="l">PASSWORD REQUIRED.</div><div class="l" id="pcMsg">Students may share the password with each other, but only if their friendship is strong enough.</div><input id="pcIn" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="go"></div><div class="prow"><button class="pbtn" id="pcGo">Enter</button><button class="pbtn" id="pcX">Leave</button></div>');
+  const inp = $("pcIn");
+  onClick("pcGo", function(){ pcSubmit(inp.value); });
+  onClick("pcX", pcLeave);
+  if(inp && inp.addEventListener) inp.addEventListener("keydown", function(e){ if(e.key === "Enter"){ e.preventDefault(); pcSubmit(inp.value); } });
+}
+function pcSubmit(v){
+  const norm = function(s){ return String(s || "").toLowerCase().replace(/\s+/g, ""); };
+  if(!norm(v)) return;
+  if(norm(v) === norm(CFG.PASSWORD)){ pcLogin(); return; }
+  sfx("bonk"); logEvent("pc_wrong", "tried password: " + String(v).slice(0, 40));
+  const m = $("pcMsg"); if(m) m.textContent = "ACCESS DENIED. Only friends get the password.";
+  const inp = $("pcIn"); if(inp) inp.value = "";
+}
+function pcLeave(){
+  closePanel();
+  if(!F.password && !F.pcThought){
+    F.pcThought = 1; save();
+    say([["~","Only if their friendship is strong enough..."],["~","And I told Miguel we'd never be friends. Great job, Grace."]]);
+  }
+}
+function pcLogin(){
+  F.pcIn = 1; save(); logEvent("pc_login", "she got into the computer"); sfx("chime");
+  openPanel('<div class="crt"><div class="l">SCHOOL-NET 98</div><div class="l">WELCOME, GRACE.</div><div class="l" id="pcLoc">LOCATING THIS COMPUTER...</div><div class="l big" id="pcCoord"></div></div>');
+  setTimeout(function(){ pbox.style.filter = "blur(1.5px)"; }, 900);
+  setTimeout(function(){ const a = $("pcLoc"), b = $("pcCoord"); if(a) a.textContent = "LOCATION FOUND:"; if(b) b.textContent = CFG.COORDS; pbox.style.filter = "blur(3.5px)"; }, 1500);
+  setTimeout(function(){ pbox.style.filter = "blur(6px)"; }, 2300);
+  setTimeout(function(){
+    F.blind = 1; save(); applyBlur(); logEvent("blind", "everything went blurry");
+    say([["Grace","Wait. What does it say?"],["~","Why is everything so blurry?"],["~","I can't read a thing. I can't see anything!"]], { onEnd:function(){
+      closePanel();
+      say([["~","I'm going blind. Who could possibly help me with this?"]]);
+    }});
+  }, 3200);
+}
+function poemDesk(){
+  const p = S.poem;
+  if(F.password){ say([["~","My poem worked. Miguel's my friend now."]]); return; }
+  if(!F.arturTalk){ say([["~","A sheet of paper and a pencil. Nothing to write about. Yet."]]); return; }
+  if(p && p.status === "pending"){ say([["~","I already wrote one. I should give it to Miguel."]]); return; }
+  if(p && p.status === "approved"){ say([["~","Miguel liked my poem. I should go talk to him."]]); return; }
+  openPoem(!!(p && p.status === "rejected"));
+}
+function openPoem(retry){
+  openPanel('<h2>A poem for Miguel</h2><p>' + (retry ? "The last one didn\u2019t land. Try again." : "Paper, a pencil, and a crying boy outside.") + '</p><textarea class="poem" id="poemIn" maxlength="900" placeholder="Dear Miguel..."></textarea><p id="poemMsg"></p><div class="prow"><button class="pbtn" id="poemGo">Fold it up</button><button class="pbtn" id="poemX">Not now</button></div>');
+  const ta = $("poemIn");
+  onClick("poemGo", function(){ poemSubmit(ta.value); });
+  onClick("poemX", closePanel);
+}
+function poemSubmit(text){
+  text = String(text || "").trim();
+  if(text.length < 8){ const m = $("poemMsg"); if(m) m.textContent = "That's not a poem. That's a sneeze."; return false; }
+  const now = Date.now();
+  S.poem = { id:now.toString(36), t:Math.floor(now / 1000) - 600, text:text.slice(0, 900), status:"pending", given:false };
+  save(); logPoem(S.poem); sfx("blip"); closePanel();
+  say([["~","Okay. Folded it up. Now I just have to give it to him."]]);
+  return true;
+}
+
+// ================= ENGINE =================
+function frontPoint(){ const d = { up:[0,-1], down:[0,1], left:[-1,0], right:[1,0] }[player.dir]; return { x:player.x + d[0]*12, y:player.y - 3 + d[1]*12 }; }
+function npcAtPoint(fx, fy){ const n = G.scene.npcs; for(let i = 0; i < n.length; i++){ if(Math.abs(n[i].x - fx) < 10 && Math.abs(n[i].y - 6 - fy) < 12) return n[i]; } return null; }
+function catAtPoint(fx, fy){ for(let i = 0; i < cats.length; i++){ if(Math.abs(cats[i].x - fx) < 9 && Math.abs(cats[i].y - 4 - fy) < 10) return cats[i]; } return null; }
+function petCat(c){
+  const now = performance.now();
+  if(now - c.pet < 1500){ say([[c.name, c.name === "Nellie" ? "(Nellie has had enough of you for now.)" : "(Albert is busy being fluffy. Later.)"]]); return; }
+  c.pet = now; S.falafel += 10; save();
+  say([[c.name, c.name === "Nellie" ? "(Nellie accepts your tribute. A yarn appears. +10 falafel.)" : "(Albert sheds on you lovingly. +10 falafel.)"]]);
+}
+function onAction(){
+  if(G.mode === "title"){ startGame(); return; }
+  if(G.mode === "dialogue"){ advanceDialogue(); return; }
+  if(G.mode === "mini"){ if(G.mini && G.mini.onA) G.mini.onA(); return; }
+  if(G.mode !== "play") return;
+  const fp = frontPoint();
+  const n = npcAtPoint(fp.x, fp.y);
+  if(n){ if(!(G.sceneId === "field" && fieldPhase() === "A")) faceTo(n, player); n.talk(); return; }
+  const c = catAtPoint(fp.x, fp.y); if(c){ petCat(c); return; }
+  const f = facingCell();
+  if(G.scene.interact) G.scene.interact(f.tx, f.ty, f.c);
+}
+function npcBlock(nx, ny){
+  const ns = G.scene.npcs;
+  for(let i = 0; i < ns.length; i++){
+    const n = ns[i];
+    if(Math.abs(nx - n.x) < 9 && Math.abs(ny - n.y) < 7){
+      if(Math.hypot(nx - n.x, ny - n.y) < Math.hypot(player.x - n.x, player.y - n.y)) return true;
+    }
+  }
+  return false;
+}
+function moveAxis(dx, dy){
+  const sc = G.scene, hw = 4, top = -5, bot = 1;
+  if(dx !== 0){
+    const nx = player.x + dx, tx = Math.floor((dx > 0 ? nx + hw : nx - hw) / TILE);
+    const t1 = Math.floor((player.y + top) / TILE), t2 = Math.floor((player.y + bot) / TILE);
+    if(!solidAt(sc, tx, t1) && !solidAt(sc, tx, t2) && !npcBlock(nx, player.y)) player.x = nx;
+  }
+  if(dy !== 0){
+    const ny = player.y + dy, ty = Math.floor((dy > 0 ? ny + bot : ny + top) / TILE);
+    const l = Math.floor((player.x - hw) / TILE), r = Math.floor((player.x + hw) / TILE);
+    if(!solidAt(sc, l, ty) && !solidAt(sc, r, ty) && !npcBlock(player.x, ny)) player.y = ny;
+  }
+}
+function movePlayer(dt){
+  const sp = 70; let vx = 0, vy = 0;
+  if(input.up){ vy = -1; player.dir = "up"; } else if(input.down){ vy = 1; player.dir = "down"; }
+  if(input.left){ vx = -1; player.dir = "left"; } else if(input.right){ vx = 1; player.dir = "right"; }
+  player.moving = (vx !== 0 || vy !== 0);
+  if(vx && vy){ vx *= 0.7071; vy *= 0.7071; }
+  if(player.moving){
+    moveAxis(vx * sp * dt, 0); moveAxis(0, vy * sp * dt);
+    trail.push({ x:player.x, y:player.y }); if(trail.length > 80) trail.shift();
+    player.anim += dt; if(player.anim > 0.18){ player.anim = 0; player.frame ^= 1; }
+    if(G.sceneId === "hall") G.walk += dt;
+  } else player.frame = 0;
+  const c = cellAt(G.scene, Math.floor(player.x / TILE), Math.floor(player.y / TILE));
+  if(c === "X") goScene("hall", G.sceneId);
+}
+function update(dt){
+  G.t += dt; if(G.shake > 0) G.shake -= dt;
+  if(G.mode === "play") movePlayer(dt); else { player.moving = false; player.frame = 0; }
+  if(G.mode === "cut") runCut(dt);
+  if(G.mode === "mini" && G.mini && G.mini.update) G.mini.update(dt);
+  cats.forEach(function(c){ const idx = trail.length - 1 - c.lag; if(idx >= 0){ const p = trail[idx]; c.x += (p.x - c.x) * Math.min(1, dt * 6); c.y += (p.y - c.y) * Math.min(1, dt * 6); } });
+  if(G.scene.update) G.scene.update(dt);
+}
+function updateCam(){
+  const sc = G.scene;
+  cam.x = sc.pw <= W ? Math.floor((sc.pw - W) / 2) : Math.floor(clamp(player.x - W/2, 0, sc.pw - W));
+  cam.y = sc.ph <= H ? Math.floor((sc.ph - H) / 2) : Math.floor(clamp(player.y - H/2, 0, sc.ph - H));
+}
+function render(dt){
+  updateCam();
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.fillStyle = "#07040c"; ctx.fillRect(0, 0, W, H);
+  const sx = G.shake > 0 ? Math.round((Math.random() - 0.5) * 4) : 0, sy = G.shake > 0 ? Math.round((Math.random() - 0.5) * 4) : 0;
+  const sc = G.scene;
+  ctx.save(); ctx.translate(-cam.x + sx, -cam.y + sy);
+  ctx.drawImage(sc.layer, 0, 0);
+  if(sc.live) sc.live(ctx);
+  const ents = [{ y:player.y, f:drawGrace }];
+  cats.forEach(function(c){ ents.push({ y:c.y, f:function(){ drawCat(c); } }); });
+  sc.npcs.forEach(function(n){ ents.push({ y:n.y, f:function(){ drawNPC(n); } }); });
+  if(G.sceneId === "field" && G.ball.vis) ents.push({ y:G.ball.y, f:drawBall });
+  ents.sort(function(a, b){ return a.y - b.y; }).forEach(function(e){ e.f(); });
+  ctx.restore();
+  if(sc.light) sc.light();
+  if(sc.wisps) drawWisps(dt);
+}
+function applyBlur(){ const on = !!(F.blind && !F.glasses); if(G.blurOn === on) return; G.blurOn = on; cv.style.filter = on ? "blur(2.4px)" : "none"; }
+let hudLast = "", hudF = -1;
+function updateHUD(){
+  const t = (G.mode === "title") ? "Grace House" : (G.scene.hint ? G.scene.hint() : G.scene.label);
+  if(t !== hudLast){ hudLast = t; $("roomName").textContent = t; }
+  if(S.falafel !== hudF){ hudF = S.falafel; $("falafelCount").textContent = S.falafel; }
+}
+function startGame(){
+  if(G.mode !== "title") return;
+  sfx("blip");
+  $("title").classList.remove("show");
+  G.mode = "play";
+  logEvent("opened", F.intro ? "came back to the house" : "opened the game for the first time");
+  if(!F.intro){
+    F.intro = 1; save();
+    say([["~","Where... am I?"],["~","This isn't my house. I don't think this is anyone's house."],["~","The last thing I remember is falling asleep."],"(Move with the pad. Press A to look at things and talk to people.)"]);
+    return;
+  }
+  if(G.scene.onEnter) G.scene.onEnter("load");
+}
+let lastT = 0;
+function loop(now){
+  const dt = Math.min(0.05, ((now - lastT) || 16) / 1000); lastT = now;
+  update(dt); updateHUD(); applyBlur(); render(dt);
+  requestAnimationFrame(loop);
+}
+
+// ================= BOOT =================
+enterScene(SCENES[S.scene] ? S.scene : "hall", "load");
+$("titleSub").textContent = F.napped ? "Season 1 complete" : "Season 1";
+$("title").addEventListener("click", startGame);
+if(S.poem && S.poem.status === "pending") pollCtrl();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
